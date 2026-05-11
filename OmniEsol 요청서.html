@@ -1227,7 +1227,7 @@ const ICUBE_SCOPE_DATA = [
     /* ── 버전 상수 ── */
     const CURRENT_VERSION   = '20260513';
     /* GitHub API 사용 — CDN 캐시 완전 우회, 항상 최신 파일 반환 */
-    const VERSION_CHECK_URL = 'https://api.github.com/repos/DOUZONEDBA/mig_webform_repo/contents/version.json';
+    const VERSION_CHECK_URL = 'https://raw.githubusercontent.com/DOUZONEDBA/mig_webform_repo/refs/heads/main/version.json';
 
     /* 버전 체크 — 최신 버전이 있으면 자동 다운로드 + 차단 오버레이 표시 */
     function checkLatestVersion() {
