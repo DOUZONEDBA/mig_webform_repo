@@ -1,0 +1,9 @@
+{
+  "version": "20260513",
+  "download": "https://raw.githubusercontent.com/DOUZONEDBA/mig_webform_repo/main/OmniEsol%20%EC%9A%94%EC%B2%AD%EC%84%9C.html",
+  "note": [
+    "마이그레이션 대상 테이블 추가",
+    "결의번호 입력란 추가",
+	"버전 테스트"
+  ]
+}
