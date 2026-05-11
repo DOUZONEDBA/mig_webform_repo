@@ -1231,13 +1231,13 @@ const ICUBE_SCOPE_DATA = [
 
     /* 버전 체크 — 최신 버전이 있으면 자동 다운로드 + 차단 오버레이 표시 */
     function checkLatestVersion() {
-        /* Accept: application/vnd.github.raw — base64 디코딩 없이 raw JSON 바로 수신 */
-        fetch(VERSION_CHECK_URL, {
-            cache: 'no-store',
-            headers: { 'Accept': 'application/vnd.github.raw' }
-        })
+        /* GitHub Contents API 기본 응답 → base64 디코딩 (커스텀 헤더 없음 → CORS 안전) */
+        fetch(VERSION_CHECK_URL, { cache: 'no-store' })
             .then(function(res) { return res.json(); })
-            .then(function(data) {
+            .then(function(apiRes) {
+                if (!apiRes.content) return;
+                var decoded = atob(apiRes.content.replace(/\n/g, ''));
+                var data    = JSON.parse(decoded);
                 if (data.version && data.version > CURRENT_VERSION) {
                     const dlUrl = data.download || '';
                     document.getElementById('modalCurVer').textContent = 'v.' + CURRENT_VERSION;
