@@ -588,7 +588,7 @@
                 <div class="form-group">
                     <label>접속방법 기타 특이사항 (선택)</label>
                     <span class="label-desc">DB 접속을 위한 VPN, 터널링 등의 특수 접속 방법이나 기타 특이사항을 입력해주세요.</span>
-                    <textarea name="remarks" rows="4" placeholder="특이사항 입력"></textarea>
+                    <textarea name="remarks" class="auto-resize" rows="4" placeholder="특이사항 입력" oninput="autoResizeTextarea(this)"></textarea>
                 </div>
                 <div class="form-group">
                     <label>첨부파일 (선택)</label>
@@ -1226,7 +1226,7 @@ const ICUBE_SCOPE_DATA = [
     }
 
     /* ── 버전 상수 ── */
-    const CURRENT_VERSION   = '20260513094900';
+    const CURRENT_VERSION   = '20260513100200';
     /* GitHub API 사용 — CDN 캐시 완전 우회, 항상 최신 파일 반환 */
     const VERSION_CHECK_URL = 'https://api.github.com/repos/DOUZONEDBA/mig_webform_repo/contents/version.json';
 
