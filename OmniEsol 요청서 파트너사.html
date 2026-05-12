@@ -1,0 +1,2415 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OmniEsol 마이그레이션 요청서</title>
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    
+    <style>
+        :root {
+            --primary-color: #4F46E5;
+            --primary-hover: #4338CA;
+            --bg-color: #F3F4F6;
+            --card-bg: #FFFFFF;
+            --text-main: #1F2937;
+            --text-muted: #6B7280;
+            --border-color: #E5E7EB;
+            --input-bg: #F9FAFB;
+            --danger-color: #EF4444;
+            --success-color: #10B981;
+        }
+
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+            background-color: var(--bg-color);
+            background-image: radial-gradient(#E5E7EB 1px, transparent 1px);
+            background-size: 20px 20px;
+            margin: 0;
+            padding: 30px 20px;
+            color: var(--text-main);
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 40px 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+        }
+
+        .utility-bar {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .btn-util {
+            padding: 8px 14px;
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+            background: #fff;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+        .btn-util:hover { background: #f9fafb; border-color: var(--primary-color); color: var(--primary-color); }
+
+        h1 {
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 30px;
+            font-size: 32px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #4F46E5 0%, #3B82F6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .tab-header {
+            display: flex;
+            margin-bottom: 30px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .tab-step {
+            flex: 1;
+            text-align: center;
+            padding: 15px 0;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-muted);
+            cursor: default;
+            position: relative;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .tab-step.active { color: var(--primary-color); }
+        .tab-step.disabled { color: #D1D5DB; cursor: not-allowed; pointer-events: none; opacity: 0.45; }
+        .tab-step.active::after {
+            content: ""; position: absolute; bottom: -2px; left: 0; width: 100%; height: 3px;
+            background-color: var(--primary-color); border-radius: 3px 3px 0 0;
+        }
+
+        .tab-content { display: none; animation: fadeIn 0.4s ease-in-out; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        section {
+            margin-bottom: 35px; padding: 30px; background: #ffffff;
+            border: 1px solid var(--border-color); border-radius: 16px;
+        }
+
+        h2 { font-size: 19px; margin-top: 0; margin-bottom: 25px; color: var(--text-main); display: flex; align-items: center; font-weight: 700; gap: 10px; }
+        h2 i { color: var(--primary-color); font-size: 20px; }
+
+        .form-group { margin-bottom: 20px; }
+        label { display: block; font-weight: 600; margin-bottom: 8px; font-size: 14px; color: var(--text-main); }
+        .label-desc { font-weight: normal; font-size: 13px; color: var(--text-muted); margin-bottom: 8px; display: block; }
+
+        input[type="text"], input[type="password"], input[type="date"], input[type="number"], input[type="file"], select, textarea {
+            width: 100%; padding: 12px 16px; background-color: var(--input-bg);
+            border: 1px solid var(--border-color); border-radius: 10px; box-sizing: border-box;
+            font-size: 15px; font-family: inherit;
+        }
+        
+        .readonly-select { pointer-events: none; background-color: #E5E7EB; color: #6B7280; }
+        .auto-resize { resize: none; overflow: hidden; min-height: 46px; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .flex-row { display: flex; align-items: center; gap: 12px; }
+
+        .checkbox-group { display: flex; gap: 20px; flex-wrap: wrap; padding: 5px 0; }
+        .checkbox-item { display: flex; align-items: center; gap: 8px; font-size: 15px; cursor: pointer; font-weight: 500; margin: 0; }
+        input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--primary-color); }
+
+        .mapping-grid { display: flex; flex-direction: column; gap: 12px; margin-top: 15px; }
+        .mapping-row { display: flex; align-items: center; justify-content: space-between; background: var(--input-bg); padding: 12px 16px; border-radius: 10px; border: 1px solid var(--border-color); transition: all 0.2s; }
+        .mapping-row:hover { border-color: #D1D5DB; }
+        .mapping-row .checkbox-item { flex: 1; }
+        
+        .mapping-file-wrap { display: flex; width: 60%; flex-direction: column; gap: 8px; opacity: 0.3; pointer-events: none; transition: opacity 0.2s; }
+        .mapping-file-wrap.active { opacity: 1; pointer-events: auto; }
+        .mapping-file { padding: 8px 12px !important; border: 1px dashed var(--primary-color) !important; background: #fff !important; border-radius: 8px; font-size: 14px; width: 100%; }
+
+        .warning-text { color: var(--danger-color); font-size: 13px; font-weight: 600; margin-top: 8px; display: none; }
+
+        table { width: 100%; border-collapse: separate; border-spacing: 0; margin-bottom: 10px; border-radius: 10px; overflow: hidden; border: 1px solid var(--border-color); }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid var(--border-color); }
+        th { background-color: #F9FAFB; font-weight: 600; font-size: 14px; color: var(--text-muted); text-align: center; }
+
+        .btn-add { background-color: var(--primary-color); color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px; float: right; }
+        .btn-delete { background-color: var(--danger-color); color: white; border: none; padding: 8px 14px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; width: 100%; display: flex; align-items: center; justify-content: center; gap: 5px; }
+
+        .dynamic-rows { background: var(--input-bg); padding: 20px; border: 1px dashed #D1D5DB; border-radius: 12px; margin-top: 15px; }
+        .round-row { display: grid; grid-template-columns: 50px 1fr 1fr 1fr 32px; gap: 15px; align-items: center; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid var(--border-color); }
+        .round-badge { background: var(--primary-color); color: white; padding: 6px 12px; border-radius: 20px; font-weight: bold; font-size: 13px; text-align: center; }
+        .btn-remove-round { background: #FEE2E2; color: #EF4444; border: none; width: 32px; height: 32px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; margin-top: 28px; transition: 0.2s; }
+        .btn-remove-round:hover { background: #FECACA; color: #B91C1C; }
+
+        .db-block { background: #FFFFFF; border: 1px solid #D1D5DB; border-radius: 12px; padding: 25px; margin-bottom: 20px; position: relative; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02); }
+        .db-block-title { font-size: 16px; font-weight: bold; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed #E5E7EB; padding-bottom: 15px; color: var(--primary-color); }
+        .btn-remove-db { color: var(--danger-color); cursor: pointer; font-size: 13px; background: none; border: 1px solid var(--danger-color); border-radius: 6px; padding: 6px 12px; font-weight: 600; transition: 0.2s; display: flex; align-items: center; gap: 6px; }
+        .btn-remove-db:hover { background: var(--danger-color); color: white; }
+
+        .button-group { display: flex; gap: 15px; margin-top: 30px; }
+        .btn-primary, .btn-secondary { flex: 1; padding: 18px; border: none; border-radius: 12px; font-size: 18px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .btn-primary { background-color: var(--primary-color); color: white; box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2); }
+        .btn-secondary { background-color: #E5E7EB; color: var(--text-main); }
+        
+        .pw-eye { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #9CA3AF; font-size: 16px; transition: color 0.2s; }
+        .pw-eye:hover { color: var(--primary-color); }
+        .btn-util-add { background: #fff; border: 1px solid var(--primary-color); color: var(--primary-color); padding: 0 16px; border-radius: 8px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: 0.2s; height: 46px; }
+        .btn-util-add:hover { background: #EEF2FF; }
+
+        /* ── 마이그레이션 범위 테이블 ── */
+        .scope-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid var(--border-color); }
+        .scope-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 1100px; }
+        .scope-table thead th { position: sticky; top: 0; z-index: 2; background: #4F46E5; color: #fff; padding: 10px 8px; text-align: center; font-weight: 700; white-space: nowrap; border: 1px solid #6366f1; }
+        .scope-table td { padding: 6px 8px; border: 1px solid #E5E7EB; vertical-align: middle; }
+        .scope-table tr:hover td { background: #F5F3FF; }
+        .scope-table td.td-module { background: #EEF2FF; font-weight: 700; color: var(--primary-color); text-align: center; white-space: nowrap; }
+        .scope-table td.td-cat { background: #F5F3FF; font-weight: 600; color: #4338CA; text-align: center; white-space: nowrap; }
+        .scope-table td.td-code { font-family: monospace; font-size: 12px; color: #374151; white-space: nowrap; }
+        .scope-table td.td-note { font-size: 12px; color: #6B7280; max-width: 200px; word-break: break-all; }
+        .scope-table input[type="checkbox"].scope-chk { width: 16px; height: 16px; cursor: pointer; accent-color: var(--primary-color); }
+        .scope-table input[type="date"].scope-date { border: 1px solid #D1D5DB; border-radius: 6px; padding: 3px 6px; font-size: 12px; width: 120px; background: var(--input-bg); }
+        .scope-empty-msg { text-align: center; padding: 60px 20px; color: var(--text-muted); font-size: 15px; }
+        .scope-empty-msg i { font-size: 40px; color: #D1D5DB; display: block; margin-bottom: 12px; }
+        .scope-group-header td { background: #EEF2FF; color: #3730a3; font-weight: 700; font-size: 13px; padding: 7px 10px; border-top: 2px solid #C7D2FE; }
+        .scope-group-header td i { color: #6366f1; margin-right: 6px; }
+        .scope-group-chk { width: 16px; height: 16px; cursor: pointer; accent-color: #4F46E5; }
+
+        /* ── 모듈 아코디언 ── */
+        .scope-module-section { border: 1px solid var(--border-color); border-radius: 12px; margin-bottom: 10px; overflow: hidden; }
+        .scope-module-header { display: flex; align-items: center; gap: 12px; padding: 14px 20px; background: #F9FAFB; cursor: pointer; font-weight: 700; font-size: 15px; color: var(--text-main); transition: background 0.2s; user-select: none; }
+        .scope-module-header:hover { background: #EEF2FF; color: var(--primary-color); }
+        .scope-module-header.open { background: #EEF2FF; color: var(--primary-color); }
+        .scope-module-arrow { transition: transform 0.25s ease; color: var(--primary-color); font-size: 13px; flex-shrink: 0; }
+        .scope-module-header.open .scope-module-arrow { transform: rotate(90deg); }
+        .scope-module-badge { background: var(--primary-color); color: #fff; padding: 3px 12px; border-radius: 20px; font-size: 13px; font-weight: 700; flex-shrink: 0; }
+        .scope-module-title { font-size: 14px; color: var(--text-muted); font-weight: 500; }
+        .scope-module-count { margin-left: auto; font-size: 13px; color: var(--text-muted); font-weight: 500; }
+        .scope-module-content { border-top: 1px solid var(--border-color); }
+
+        /* ── 버전 업데이트 차단 오버레이 ── */
+        .update-overlay {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.65); z-index: 9999;
+            align-items: center; justify-content: center;
+        }
+        .update-overlay.show { display: flex; }
+        .update-modal {
+            background: #fff; border-radius: 20px; padding: 40px 44px;
+            max-width: 480px; width: 90%; text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.35);
+            animation: fadeIn 0.3s ease;
+        }
+        .update-modal-icon { font-size: 52px; color: #F59E0B; margin-bottom: 16px; }
+        .update-modal h2 { font-size: 22px; color: var(--text-main); margin: 0 0 10px; }
+        .update-modal-versions {
+            display: flex; justify-content: center; gap: 24px;
+            background: #F9FAFB; border-radius: 10px; padding: 14px 20px; margin: 16px 0;
+        }
+        .update-modal-versions div { font-size: 13px; color: var(--text-muted); }
+        .update-modal-versions strong { display: block; font-size: 16px; color: var(--text-main); margin-top: 4px; }
+        .update-modal-note { margin: 0 0 20px; padding: 0; }
+        .update-modal-note-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 10px; text-align: left; }
+        .update-modal-note ul { list-style: none; margin: 0; padding: 0; text-align: left; background: #F9FAFB; border-radius: 10px; padding: 12px 16px; border: 1px solid var(--border-color); }
+        .update-modal-note ul li { font-size: 13px; color: var(--text-main); padding: 5px 0; display: flex; align-items: flex-start; gap: 8px; border-bottom: 1px dashed var(--border-color); }
+        .update-modal-note ul li:last-child { border-bottom: none; }
+        .update-modal-note ul li::before { content: "✓"; color: var(--primary-color); font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+        .update-modal-desc { font-size: 14px; color: #6B7280; margin-bottom: 24px; line-height: 1.6; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- 아이콘 변경: 세련된 문서/서류 모양 -->
+    <h1><i class="fa-solid fa-file-signature"></i> OmniEsol 마이그레이션 요청서</h1>
+
+    <!-- 버전 업데이트 차단 오버레이 -->
+    <div id="updateOverlay" class="update-overlay">
+        <div class="update-modal">
+            <div class="update-modal-icon"><i class="fa-solid fa-rotate"></i></div>
+            <h2>새로운 버전이 있습니다</h2>
+            <div class="update-modal-versions">
+                <div>현재 버전<strong id="modalCurVer"></strong></div>
+                <div style="font-size:22px; color:#D1D5DB; align-self:center;">→</div>
+                <div>최신 버전<strong id="modalNewVer" style="color:var(--primary-color);"></strong></div>
+            </div>
+            <div id="modalNote" class="update-modal-note" style="display:none;">
+                <div class="update-modal-note-title">변경사항</div>
+                <ul id="modalNoteList"></ul>
+            </div>
+            <p class="update-modal-desc">
+                최신 버전이 자동으로 다운로드됩니다.<br>
+                다운로드된 파일을 사용해 주세요.
+            </p>
+        </div>
+    </div>
+
+    <div class="tab-header">
+        <div id="step1" class="tab-step active"><i class="fa-solid fa-pen-to-square"></i> 01. 기본 정보</div>
+        <div id="step2" class="tab-step"><i class="fa-solid fa-database"></i> 02. DB 정보</div>
+        <div id="step3" class="tab-step"><i class="fa-solid fa-shield-halved"></i> 03. 보안 및 매핑</div>
+        <div id="step4" class="tab-step"><i class="fa-solid fa-table-list"></i> 04. 마이그레이션 범위</div>
+    </div>
+
+    <form id="migrationForm">
+        <div id="tab1" class="tab-content active">
+            <section>
+                <h2><i class="fa-solid fa-building"></i> 마이그레이션 기본 정보</h2>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>업체명 <span style="color:red">*</span></label>
+                        <input type="text" name="companyName" placeholder="업체명을 입력하세요" required>
+                    </div>
+                    <div class="form-group">
+                        <label>오픈 예정일 <span style="color:red">*</span></label>
+                        <input type="date" name="openDate" max="9999-12-31" required>
+                    </div>
+                </div>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>제품명 <span style="color:red">*</span></label>
+                        <div class="flex-row">
+                            <select name="productName" id="productSelect" style="width: 200px;" onchange="handleProductChange(false)" required>
+                                <option value="iU" selected>iU</option>
+                                <option value="iCUBE">iCUBE</option>
+                                <option value="BizboxA">BizboxA</option>
+                                <option value="타시스템">타시스템</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>신규 마이그레이션 여부 <span style="color:red">*</span></label>
+                        <select id="isNewRequest" name="isNewRequest" onchange="toggleNewRequest()" required style="width: 200px;">
+                            <option value="N" selected>N</option>
+                            <option value="Y">Y</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group" id="otherProductSection" style="display:none; margin-top: 10px;">
+                    <label>타시스템명 <span style="color:red">*</span></label>
+                    <input type="text" name="otherProductName" id="otherProductInput" placeholder="타시스템명을 입력하세요" style="max-width: 400px;">
+                </div>
+
+                <div class="form-group" id="gcmsSection" style="display:none; margin-top: 10px;">
+                    <label>GCMS 고객코드 <span style="color:red">*</span></label>
+                    <input type="text" id="gcmsCode" name="gcmsCode" placeholder="GCMS 고객코드를 입력하세요" style="max-width: 400px;">
+                </div>
+                
+                <div class="form-group" style="margin-top: 10px; padding: 20px; background: #F9FAFB; border-radius: 10px; border: 1px solid var(--border-color);">
+                    <label>모듈 및 담당자 <span style="color:red">*</span></label>
+                    <span id="moduleDesc" class="label-desc">모듈을 선택하시면 해당 항목의 담당자명, 연락처를 기재할 수 있습니다.</span>
+                    <div id="defaultModules" class="checkbox-group" style="align-items: flex-start; margin-top: 10px; flex-direction: column;">
+                        <div style="display: flex; align-items: center; gap: 10px; width: 100%;">
+                            <label class="checkbox-item" style="width: 80px;"><input type="checkbox" id="chkAcc" name="category" value="회계" onchange="toggleManager('Acc')"> 회계</label>
+                            <input type="text" id="managerAccName" name="managerAccName" placeholder="컨설턴트명" style="display: none; width: 180px; padding: 8px 12px; background: #fff;">
+                            <input type="text" id="managerAccContact" name="managerAccContact" type="tel" placeholder="010-0000-0000" maxlength="13" oninput="formatPhoneNumber(this)" style="display: none; width: 220px; padding: 8px 12px; background: #fff;">
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px; width: 100%; margin-top: 8px;">
+                            <label class="checkbox-item" style="width: 80px;"><input type="checkbox" id="chkHr" name="category" value="인사" onchange="toggleManager('Hr')"> 인사</label>
+                            <input type="text" id="managerHrName" name="managerHrName" placeholder="컨설턴트명" style="display: none; width: 180px; padding: 8px 12px; background: #fff;">
+                            <input type="text" id="managerHrContact" name="managerHrContact" type="tel" placeholder="010-0000-0000" maxlength="13" oninput="formatPhoneNumber(this)" style="display: none; width: 220px; padding: 8px 12px; background: #fff;">
+                        </div>
+                    </div>
+                    <div id="bizboxModules" style="display: none; margin-top: 10px;">
+                        <div class="checkbox-group">
+                            <label class="checkbox-item"><input type="checkbox" name="bizboxModule" value="전자결재" onchange="toggleBizboxModule()"> 전자결재</label>
+                            <label class="checkbox-item"><input type="checkbox" name="bizboxModule" value="게시판" onchange="toggleBizboxModule()"> 게시판</label>
+                            <label class="checkbox-item"><input type="checkbox" name="bizboxModule" value="문서" onchange="toggleBizboxModule()"> 문서</label>
+                        </div>
+                        <div id="bizManagerArea" style="display:none; align-items:center; gap:10px; margin-top:10px; flex-wrap:wrap;">
+                            <input type="text" id="managerBizName" name="managerBizName" placeholder="컨설턴트명" style="width: 180px; padding: 8px 12px; background: #fff;">
+                            <input type="text" id="managerBizContact" name="managerBizContact" type="tel" placeholder="010-0000-0000" maxlength="13" oninput="formatPhoneNumber(this)" style="width: 220px; padding: 8px 12px; background: #fff;">
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="corpSection">
+                <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 15px;">
+                    <div>
+                        <h2 style="margin: 0; border: none; padding: 0;"><i class="fa-solid fa-sitemap"></i> 마이그레이션 대상법인</h2>
+                        <div style="color: var(--danger-color); font-size: 13px; margin-top: 8px; font-weight: 600;">
+                            <i class="fa-solid fa-asterisk"></i> OmniEsol 회사코드 : 마이그레이션 회사코드 생성 후 기재 (최대 7자리)
+                        </div>
+                        <div style="color: var(--danger-color); font-size: 13px; margin-top: 8px; font-weight: 600;">
+                            <i class="fa-solid fa-asterisk"></i> 마이그레이션 데이터 정합성 보존을 위해 OmniEsol 회사코드는 MIG 접두사를 붙인 코드로 마이그레이션 가능합니다.
+                        </div>
+                        <div style="color: var(--danger-color); font-size: 13px; margin-top: 8px; font-weight: 600;">
+                            <i class="fa-solid fa-asterisk"></i> MIG 법인의 데이터는 OmniEsol의 회사데이터 복사 메뉴를 통해 원하시는 법인으로 복사하여 사용하시면 됩니다.
+                        </div>
+                    </div>
+                    <button type="button" class="btn-add" onclick="addCorpRow()"><i class="fa-solid fa-plus"></i> 법인 추가</button>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>법인명 <span style="color:red">*</span></th>
+                            <th>Source 회사코드 <span style="color:red">*</span></th>
+                            <th>OmniEsol 회사코드 <span style="color:red">*</span></th>
+                            <th style="width: 90px;">관리</th>
+                        </tr>
+                    </thead>
+                    <tbody id="corpTableBody">
+                        <tr>
+                            <td><input type="text" name="corpName[]" placeholder="법인명 입력" required></td>
+                            <td><input type="text" name="asisCode[]" placeholder="예: 1000" required></td>
+                            <td><input type="text" name="omniCode[]" value="MIG" placeholder="예: MIGXXX" maxlength="7" onkeydown="enforceOmniCodeKey(this,event)" oninput="enforceOmniCodePrefix(this)" required></td>
+                            <td style="text-align: center; color: var(--text-muted); font-size: 13px;">기본 법인</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section>
+                <h2><i class="fa-solid fa-calendar-days"></i> 마이그레이션 차수 및 기간</h2>
+                <span class="label-desc" style="margin-bottom: 6px; color: red;">
+                    <i class="fa-solid fa-circle-info"></i> 신규 마이그레이션 요청인 경우 전체 마이그레이션 일정을 등록해주세요.
+                </span>
+                <span id="elecPeriodNotice" class="label-desc" style="margin-bottom: 20px; color: red; display: none;">
+                    <i class="fa-solid fa-circle-info"></i> 시작년, 종료년 지정에 따른 기간처리는 전자결재만 해당됩니다.
+                </span>
+                
+                <div id="accRoundSection" style="display: none; margin-bottom: 30px;">
+                    <div style="display: flex; gap: 15px; align-items: flex-end;">
+                        <div class="form-group" id="accRoundDropdownWrap" style="margin-bottom: 0; width: 200px;">
+                            <label>회계 마이그레이션 차수</label>
+                            <select id="accRoundSelect" name="accRoundSelect" onchange="handleRoundSelectChange('acc')">
+                                <option value="1">1차</option>
+                                <option value="2">2차</option>
+                                <option value="3">3차</option>
+                                <option value="4">4차</option>
+                                <option value="5">5차</option>
+                            </select>
+                        </div>
+                        <div id="accRoundLabelOnly" style="display: none; align-items: center; height: 46px;">
+                            <label style="margin: 0; font-size: 15px; font-weight: 600; padding-bottom: 0;">회계 마이그레이션 차수</label>
+                        </div>
+                        <button type="button" id="btnAccAdd" class="btn-util-add" onclick="addRounds('acc')"><i class="fa-solid fa-plus"></i> 추가</button>
+                    </div>
+                    <div id="accRoundContainer" class="dynamic-rows" style="display: none;"></div>
+                </div>
+
+                <div id="hrRoundSection" style="display: none;">
+                    <div style="display: flex; gap: 15px; align-items: flex-end;">
+                        <div class="form-group" id="hrRoundDropdownWrap" style="margin-bottom: 0; width: 200px;">
+                            <label>인사 마이그레이션 차수</label>
+                            <select id="hrRoundSelect" name="hrRoundSelect" onchange="handleRoundSelectChange('hr')">
+                                <option value="1">1차</option>
+                                <option value="2">2차</option>
+                                <option value="3">3차</option>
+                                <option value="4">4차</option>
+                                <option value="5">5차</option>
+                            </select>
+                        </div>
+                        <div id="hrRoundLabelOnly" style="display: none; align-items: center; height: 46px;">
+                            <label style="margin: 0; font-size: 15px; font-weight: 600; padding-bottom: 0;">인사 마이그레이션 차수</label>
+                        </div>
+                        <button type="button" id="btnHrAdd" class="btn-util-add" onclick="addRounds('hr')"><i class="fa-solid fa-plus"></i> 추가</button>
+                    </div>
+                    <div id="hrRoundContainer" class="dynamic-rows" style="display: none;"></div>
+                </div>
+
+                <div id="bizRoundSection" style="display: none; margin-top: 30px;">
+                    <div style="display: flex; gap: 15px; align-items: flex-end;">
+                        <div class="form-group" id="bizRoundDropdownWrap" style="margin-bottom: 0; width: 200px;">
+                            <label>BizboxA 마이그레이션 차수</label>
+                            <select id="bizRoundSelect" name="bizRoundSelect" onchange="handleRoundSelectChange('biz')">
+                                <option value="1">1차</option>
+                                <option value="2">2차</option>
+                                <option value="3">3차</option>
+                                <option value="4">4차</option>
+                                <option value="5">5차</option>
+                            </select>
+                        </div>
+                        <div id="bizRoundLabelOnly" style="display: none; align-items: center; height: 46px;">
+                            <label style="margin: 0; font-size: 15px; font-weight: 600; padding-bottom: 0;">BizboxA 마이그레이션 차수</label>
+                        </div>
+                        <button type="button" id="btnBizAdd" class="btn-util-add" onclick="addRounds('biz')"><i class="fa-solid fa-plus"></i> 추가</button>
+                    </div>
+                    <div id="bizRoundContainer" class="dynamic-rows" style="display: none;"></div>
+                </div>
+            </section>
+
+            <div class="button-group">
+                <button type="button" id="btnNextTab2" class="btn-primary" onclick="goToTab(2)">다음 (DB 정보) <i class="fa-solid fa-arrow-right"></i></button>
+                <button type="button" id="btnSubmitBiz" class="btn-primary" onclick="submitForm()" style="display: none;"><i class="fa-solid fa-file-zipper"></i> 요청서 제출 (ZIP 생성)</button>
+            </div>
+        </div>
+
+        <div id="tab2" class="tab-content">
+            <section>
+                <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px;">
+                    <h2 style="margin: 0;"><i class="fa-solid fa-server"></i> <span id="asisTitle">AS_IS 접속정보</span></h2>
+                    <button type="button" class="btn-util-add" style="height: 36px; font-size: 14px;" onclick="addDbBlock('asis')"><i class="fa-solid fa-plus"></i> Source DB 추가</button>
+                </div>
+                
+                <div id="asisDbContainer"></div>
+            </section>
+
+            <section>
+                <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px;">
+                    <h2 style="margin: 0;"><i class="fa-solid fa-cloud-arrow-up"></i> OmniEsol 접속정보</h2>
+                    <button type="button" class="btn-util-add" style="height: 36px; font-size: 14px;" onclick="addDbBlock('tobe')"><i class="fa-solid fa-plus"></i> OmniEsol DB 추가</button>
+                </div>
+                
+                <div id="tobeDbContainer"></div>
+
+                <div class="form-group" style="margin-top: 25px; border-top: 1px dashed #E5E7EB; padding-top: 25px;">
+                    <label>OmniEsol URL 주소 <span style="color:red">*</span></label>
+                    <input type="text" name="omniUrl" placeholder="https://..." required>
+                </div>
+                
+                <div class="grid-2" style="margin-top: 20px;">
+                    <div class="form-group">
+                        <label>OmniEsol 로그인 ID <span style="color:red">*</span></label>
+                        <input type="text" name="omniLoginId" placeholder="웹 로그인 아이디" required>
+                    </div>
+                    <div class="form-group">
+                        <label>OmniEsol 로그인 PASSWORD <span style="color:red">*</span></label>
+                        <div style="position: relative;">
+                            <input type="password" name="omniLoginPw" placeholder="웹 로그인 비밀번호" required style="padding-right: 40px;">
+                            <i class="fa-solid fa-eye pw-eye" onclick="togglePwIcon(this)" title="비밀번호 보기"></i>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="button-group">
+                <button type="button" class="btn-secondary" onclick="goToTab(1)"><i class="fa-solid fa-arrow-left"></i> 이전</button>
+                <button type="button" id="btnNextTab3" class="btn-primary" onclick="goToTab(3)">다음 (보안 및 매핑 설정) <i class="fa-solid fa-arrow-right"></i></button>
+                <button type="button" id="btnSubmitOther" class="btn-primary" onclick="submitForm()" style="display: none;"><i class="fa-solid fa-file-zipper"></i> 요청서 제출 (ZIP 생성)</button>
+            </div>
+        </div>
+
+        <div id="tab3" class="tab-content">
+            <section id="securitySection">
+                <h2><i class="fa-solid fa-shield-halved"></i> 보안 설정</h2>
+                <div class="form-group">
+                    <label>암호화 여부</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-item"><input type="checkbox" name="encryption" value="계좌번호"> 계좌번호</label>
+                        <label class="checkbox-item"><input type="checkbox" id="encCreditCard" name="encryption" value="신용카드" onchange="handleProductChange(true)"> 신용카드</label>
+                    </div>
+                    <div id="ccWarningMsg" class="warning-text">
+                        <i class="fa-solid fa-circle-exclamation"></i> iU 신용카드 암호화하는 경우 '신용카드' 코드매핑은 필수입니다.
+                    </div>
+                </div>
+            </section>
+
+            <section id="mappingSection">
+                <h2><i class="fa-solid fa-route"></i> 코드 매핑 설정</h2>
+                <div class="form-group">
+                    <label>매핑 대상 선택 (Source 코드와 Target 코드가 다른 경우)</label>
+                    <span class="label-desc">항목을 체크하면 매핑 정보가 담긴 파일을 필수로 첨부해야 합니다.</span>
+                    
+                    <div class="mapping-grid">
+                        <div class="mapping-row" id="mapAccFyContainer" style="display:none;">
+                            <label class="checkbox-item"><input type="checkbox" name="codeMapping" value="회계기수" onchange="toggleMappingFile(this, 'file-accfy', 'badge-accfy')"> 회계기수</label>
+                            <div id="wrap-file-accfy" class="mapping-file-wrap">
+                                <input type="file" id="file-accfy" name="mappingFile_vendor" class="mapping-file" title="회계기수 매핑 파일 첨부" onchange="displaySingleMappingFile(this, 'badge-accfy')">
+                                <div id="badge-accfy" style="display: none;"></div>
+                            </div>
+                        </div>
+                        <div class="mapping-row">
+                            <label class="checkbox-item"><input type="checkbox" name="codeMapping" value="거래처" onchange="toggleMappingFile(this, 'file-vendor', 'badge-vendor')"> 거래처</label>
+                            <div id="wrap-file-vendor" class="mapping-file-wrap">
+                                <input type="file" id="file-vendor" name="mappingFile_vendor" class="mapping-file" title="거래처 매핑 파일 첨부" onchange="displaySingleMappingFile(this, 'badge-vendor')">
+                                <div id="badge-vendor" style="display: none;"></div>
+                            </div>
+                        </div>
+                        <div class="mapping-row">
+                            <label class="checkbox-item"><input type="checkbox" name="codeMapping" value="계정코드" onchange="toggleMappingFile(this, 'file-account', 'badge-account')"> 계정코드</label>
+                            <div id="wrap-file-account" class="mapping-file-wrap">
+                                <input type="file" id="file-account" name="mappingFile_account" class="mapping-file" title="계정코드 매핑 파일 첨부" onchange="displaySingleMappingFile(this, 'badge-account')">
+                                <div id="badge-account" style="display: none;"></div>
+                            </div>
+                        </div>
+                        <div class="mapping-row">
+                            <label class="checkbox-item"><input type="checkbox" name="codeMapping" value="사원" onchange="toggleMappingFile(this, 'file-emp', 'badge-emp')"> 사원</label>
+                            <div id="wrap-file-emp" class="mapping-file-wrap">
+                                <input type="file" id="file-emp" name="mappingFile_emp" class="mapping-file" title="사원 매핑 파일 첨부" onchange="displaySingleMappingFile(this, 'badge-emp')">
+                                <div id="badge-emp" style="display: none;"></div>
+                            </div>
+                        </div>
+                        <div class="mapping-row">
+                            <label class="checkbox-item"><input type="checkbox" name="codeMapping" value="부서" onchange="toggleMappingFile(this, 'file-dept', 'badge-dept')"> 부서</label>
+                            <div id="wrap-file-dept" class="mapping-file-wrap">
+                                <input type="file" id="file-dept" name="mappingFile_dept" class="mapping-file" title="부서 매핑 파일 첨부" onchange="displaySingleMappingFile(this, 'badge-dept')">
+                                <div id="badge-dept" style="display: none;"></div>
+                            </div>
+                        </div>
+                        <div class="mapping-row" id="mapMgmtItemContainer" style="display:none;">
+                            <label class="checkbox-item"><input type="checkbox" name="codeMapping" value="관리항목" onchange="toggleMappingFile(this, 'file-mgmt', 'badge-mgmt')"> 관리항목</label>
+                            <div id="wrap-file-mgmt" class="mapping-file-wrap">
+                                <input type="file" id="file-mgmt" name="mappingFile_mgmt" class="mapping-file" title="관리항목 매핑 파일 첨부" onchange="displaySingleMappingFile(this, 'badge-mgmt')">
+                                <div id="badge-mgmt" style="display: none;"></div>
+                            </div>
+                        </div>
+                        <div class="mapping-row" id="mapAccNumContainer">
+                            <label class="checkbox-item"><input type="checkbox" id="mapAccNum" name="codeMapping" value="계좌번호" onchange="toggleMappingFile(this, 'file-accnum', 'badge-accnum')"> 계좌번호</label>
+                            <div id="wrap-file-accnum" class="mapping-file-wrap">
+                                <input type="file" id="file-accnum" name="mappingFile_accnum" class="mapping-file" title="계좌번호 매핑 파일 첨부" onchange="displaySingleMappingFile(this, 'badge-accnum')">
+                                <div id="badge-accnum" style="display: none;"></div>
+                            </div>
+                        </div>
+                        <div class="mapping-row" id="mapCreditCardContainer">
+                            <label class="checkbox-item"><input type="checkbox" id="mapCreditCard" name="codeMapping" value="신용카드" onchange="toggleMappingFile(this, 'file-card', 'badge-card')"> 신용카드</label>
+                            <div id="wrap-file-card" class="mapping-file-wrap">
+                                <input type="file" id="file-card" name="mappingFile_card" class="mapping-file" title="신용카드 매핑 파일 첨부" onchange="displaySingleMappingFile(this, 'badge-card')">
+                                <div id="badge-card" style="display: none;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section style="margin-bottom: 0;">
+                <h2><i class="fa-solid fa-paperclip"></i> 기타 비고 및 첨부파일</h2>
+                <div class="form-group">
+                    <label>접속방법 기타 특이사항 (선택)</label>
+                    <span class="label-desc">DB 접속을 위한 VPN, 터널링 등의 특수 접속 방법이나 기타 특이사항을 입력해주세요.</span>
+                    <textarea name="remarks" class="auto-resize" rows="4" placeholder="특이사항 입력" oninput="autoResizeTextarea(this)"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>첨부파일 (선택)</label>
+                    <span class="label-desc">설치리스트, 관련 문서, 접속 가이드 등을 첨부해 주세요. (파일 선택 시 기존 목록에 계속 누적 추가됩니다)</span>
+                    <input type="file" id="mainAttachment" name="attachment" multiple onchange="displaySelectedFiles(this)">
+                    <div id="attachmentList" style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 8px;"></div>
+                </div>
+            </section>
+
+            <div class="button-group">
+                <button type="button" class="btn-secondary" onclick="goToTab(2)"><i class="fa-solid fa-arrow-left"></i> 이전</button>
+                <button type="button" id="btnNextTab4" class="btn-primary" onclick="goToTab(4)">다음 (마이그레이션 범위) <i class="fa-solid fa-arrow-right"></i></button>
+                <button type="button" id="btnSubmitOtherTab3" class="btn-primary" onclick="submitForm()" style="display:none;"><i class="fa-solid fa-file-zipper"></i> 요청서 제출 (ZIP 생성)</button>
+            </div>
+        </div>
+
+        <div id="tab4" class="tab-content">
+            <section>
+                <h2><i class="fa-solid fa-table-list"></i> 마이그레이션 범위</h2>
+                <div id="scopeNotice" class="scope-empty-msg">
+                    <i class="fa-solid fa-circle-info"></i>
+                    01. 기본 정보 탭에서 제품명을 선택하면 마이그레이션 범위 테이블이 표시됩니다.
+                </div>
+                <div id="scopeTableContainer"></div>
+            </section>
+
+            <section id="carryoverExtraSection" style="display:none;">
+                <h2><i class="fa-solid fa-circle-plus"></i> 추가정보 입력</h2>
+                <p class="label-desc" style="margin-bottom: 20px; display: block;">
+                    <i class="fa-solid fa-circle-info"></i>&nbsp; 해당 항목의 전표 정보(코드값)를 입력해 주세요.
+                </p>
+
+                <div id="carryoverInitGroup" style="display:none;">
+                    <p style="font-weight:700; font-size:14px; color:var(--text-main); margin:0 0 12px;"><i class="fa-solid fa-layer-group" style="color:var(--primary-color);"></i> 초기이월전표 정보</p>
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label>초기이월전표 작성부서 코드 <span style="color:red">*</span></label>
+                            <input type="text" name="carryoverDept" placeholder="">
+                        </div>
+                        <div class="form-group">
+                            <label>초기이월전표 작성자 코드 <span style="color:red">*</span></label>
+                            <input type="text" name="carryoverWriter" placeholder="">
+                        </div>
+                    </div>
+                    <div class="form-group" style="max-width: calc(50% - 10px);">
+                        <label>초기이월전표 승인자 코드 <span style="color:red">*</span></label>
+                        <input type="text" name="carryoverApprover" placeholder="">
+                    </div>
+                </div>
+
+                <div id="carryoverBanjeGroup" style="display:none; margin-top:20px; padding-top:20px; border-top:1px dashed var(--border-color);">
+                    <p style="font-weight:700; font-size:14px; color:var(--text-main); margin:0 0 12px;"><i class="fa-solid fa-layer-group" style="color:var(--primary-color);"></i> 반제잔액전표 정보</p>
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label>반제잔액전표 작성부서 코드 <span style="color:red">*</span></label>
+                            <input type="text" name="banjeDept" placeholder="">
+                        </div>
+                        <div class="form-group">
+                            <label>반제잔액전표 작성자 코드 <span style="color:red">*</span></label>
+                            <input type="text" name="banjeWriter" placeholder="">
+                        </div>
+                    </div>
+                    <div class="form-group" style="max-width: calc(50% - 10px);">
+                        <label>반제잔액전표 승인자 코드 <span style="color:red">*</span></label>
+                        <input type="text" name="banjeApprover" placeholder="">
+                    </div>
+                </div>
+
+                <div id="carryoverPastBanjeGroup" style="display:none; margin-top:20px; padding-top:20px; border-top:1px dashed var(--border-color);">
+                    <p style="font-weight:700; font-size:14px; color:var(--text-main); margin:0 0 12px;"><i class="fa-solid fa-layer-group" style="color:var(--primary-color);"></i> 과거반제전표 정보 <span style="font-size:12px; font-weight:500; color:var(--text-muted);"></span></p>
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label>과거반제전표 작성자 코드 <span style="color:red">*</span></label>
+                            <input type="text" name="pastBanjeWriter" placeholder="">
+                        </div>
+                        <div class="form-group">
+                            <label>과거반제전표 승인자 코드 <span style="color:red">*</span></label>
+                            <input type="text" name="pastBanjeApprover" placeholder="">
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="button-group">
+                <button type="button" class="btn-secondary" onclick="goToTab(3)"><i class="fa-solid fa-arrow-left"></i> 이전</button>
+                <button type="button" class="btn-primary" onclick="submitForm()"><i class="fa-solid fa-paper-plane"></i> 최종 제출하기 (ZIP 다운로드)</button>
+            </div>
+        </div>
+    </form>
+    
+    <div style="text-align: center; margin-top: 40px; margin-bottom: 20px; color: #9CA3AF; font-size: 12px; font-weight: 500; letter-spacing: 1px;">
+        DBACell OmniEsol Migration Request Form v.20260513
+    </div>
+</div>
+
+<script>
+const IU_SCOPE_DATA = [
+{"m":"CI","c":"사용자","od":"CI_USER_MST","oe":"통합사용자등록","id":"MA_USER","ie":"사용자등록","note":"패스워드는 PASSWD로 암호화","confirm":""},
+{"m":"","c":"","od":"CI_EMP_MST","oe":"통합사원등록","id":"MA_EMP","ie":"사원등록","note":"","confirm":""},
+{"m":"","c":"회계계정","od":"CI_COA_MST","oe":"통합회계계정 ","id":"FI_ACCTCODE","ie":"계정등록","note":"마이그레이션 이후 계정속성 검토필요","confirm":""},
+{"m":"","c":"","od":"CI_COA_DTL","oe":"통합회계계정관리항목","id":"FI_ACCTCODE","ie":"계정등록","note":"","confirm":""},
+{"m":"","c":"","od":"CI_COA_MULTIATTR","oe":"통합회계계정속성","id":"FI_ACCTCODE","ie":"계정등록","note":"반제처리(Z01), 화폐성(Z02) 레코드만 생성","confirm":""},
+{"m":"","c":"","od":"CI_FSFORM_MST","oe":"통합재무제표양식","id":"FI_FSFORM","ie":"재무제표양식지정","note":"제조원가 5 ~ 8 장부는 이관제외","confirm":""},
+{"m":"","c":"","od":"CI_ACGRP_MST","oe":"통합계정그룹마스터","id":"FI_ACGRP","ie":"계정그룹정보","note":"","confirm":""},
+{"m":"","c":"","od":"CI_ACGRP_DTL","oe":"통합계정그룹디테일","id":"FI_GRPACCT","ie":"계정과목연결","note":"","confirm":""},
+{"m":"","c":"","od":"CI_GRPCAL_MST","oe":"통합계산그룹마스타","id":"FI_GRPCAL","ie":"계산그룹등록","note":"","confirm":""},
+{"m":"","c":"","od":"CI_ACCTMNG_MST","oe":"관리항목등록","id":"FI_MNG","ie":"관리항목","note":"","confirm":""},
+{"m":"","c":"","od":"CI_ACCTMNG_DTL","oe":"관리항목등록","id":"FI_MNGD","ie":"관리내역등록","note":"","confirm":""},
+{"m":"","c":"거래처","od":"CI_PARTNER_MST","oe":"통합거래처마스터","id":"MA_PARTNER","ie":"거래처","note":"","confirm":""},
+{"m":"","c":"품목","od":"CI_ITEM","oe":"통합품목등록","id":"MA_ITEM","ie":"품목등록","note":"","confirm":""},
+{"m":"","c":"","od":"CI_ITEMLANG_SDTL","oe":"통합품목등록다국어","id":"MA_ITEM","ie":"품목등록","note":"","confirm":""},
+{"m":"","c":"","od":"CI_UOM_INFO","oe":"통합단위등록","id":"MA_CODEDTL_MA_B000004","ie":"코드관리-단위","note":"","confirm":""},
+{"m":"MA","c":"조직관리","od":"MA_PC_MST","oe":"회계단위","id":"MA_PC","ie":"회계단위","note":"","confirm":""},
+{"m":"","c":"","od":"MA_BIZAREA_MST","oe":"사업장등록","id":"MA_BIZAREA","ie":"사업장","note":"","confirm":""},
+{"m":"","c":"","od":"MA_CC_MST","oe":"비용센터마스터","id":"MA_CC","ie":"코스트센터","note":"환종은 KRW로 이관","confirm":""},
+{"m":"","c":"","od":"MA_CCGRP_MST","oe":"비용센터그룹마스터","id":"MA_CCGRP","ie":"C/C그룹","note":"","confirm":""},
+{"m":"","c":"","od":"MA_CCGRPCC_INFO","oe":"비용센터그룹연결정보","id":"MA_GRPCC","ie":"C/C그룹관리","note":"","confirm":""},
+{"m":"","c":"","od":"MA_DEPT_MST","oe":"부서정보등록","id":"MA_DEPT","ie":"부서","note":"","confirm":""},
+{"m":"","c":"","od":"PS_PJTGRP_MST","oe":"프로젝트그룹","id":"MA_PJTGRP","ie":"프로젝트그룹","note":"","confirm":""},
+{"m":"","c":"","od":"PS_PJTGRP_SDTL","oe":"프로젝트그룹연결","id":"MA_PJTGRP","ie":"프로젝트그룹연결","note":"","confirm":""},
+{"m":"","c":"","od":"PS_PJTGRP_DTL","oe":"프로젝트명","id":"MA_PJTGRPD","ie":"프로젝트명","note":"","confirm":""},
+{"m":"","c":"","od":"PS_PROJ_MST","oe":"프로젝트마스터","id":"SA_PROJECTH","ie":"프로젝트기본정보등록","note":"","confirm":""},
+{"m":"","c":"","od":"PS_PROJ_SDTL","oe":"프로젝트서브디테일","id":"SA_PROJECTH","ie":"프로젝트기본정보등록","note":"","confirm":""},
+{"m":"","c":"","od":"PS_WBS_MST","oe":"WBS마스터","id":"SA_PROJECTH","ie":"프로젝트기본정보등록","note":"","confirm":""},
+{"m":"","c":"","od":"PS_WBS_SDTL","oe":"WBS서브디테일","id":"SA_PROJECTH","ie":"프로젝트기본정보등록","note":"","confirm":""},
+{"m":"","c":"","od":"MA_PURGRP_MST","oe":"구매그룹등록","id":"MA_PURGRP","ie":"구매그룹등록","note":"","confirm":""},
+{"m":"","c":"","od":"MA_PURORG_MST","oe":"구매조직등록","id":"MA_PURORG","ie":"구매조직등록","note":"","confirm":""},
+{"m":"","c":"","od":"MA_PURORGLANG_INFO","oe":"구매조직다국어","id":"MA_PURORG","ie":"구매조직등록","note":"","confirm":""},
+{"m":"","c":"","od":"MA_SAORG_MST","oe":"영업조직마스터","id":"MA_SALEORG","ie":"영업조직등록","note":"","confirm":""},
+{"m":"","c":"","od":"MA_SAORGST_MST","oe":"영업조직구조마스터","id":"MA_SALEORG","ie":"영업조직등록","note":"","confirm":""},
+{"m":"","c":"코드관리","od":"MA_CODEDTL","oe":"코드관리","id":"MA_CODEDTL","ie":"코드관리","note":"","confirm":""},
+{"m":"","c":"","od":"MA_CODEDTL_SDTL","oe":"코드관리 다국어","id":"MA_CODEDTL","ie":"코드관리","note":"","confirm":""},
+{"m":"","c":"회계계정","od":"MA_COA_MST","oe":"회계계정 ","id":"FI_ACCTCODE","ie":"계정등록","note":"마이그레이션 이후 계정속성 검토필요","confirm":""},
+{"m":"","c":"","od":"MA_COA_DTL","oe":"회계계정관리항목","id":"FI_ACCTCODE","ie":"계정등록","note":"","confirm":""},
+{"m":"","c":"","od":"MA_COA_MULTIATTR","oe":"회계계정속성","id":"FI_ACCTCODE","ie":"계정등록","note":"반제처리(Z01), 화폐성(Z02) 레코드만 생성","confirm":""},
+{"m":"","c":"","od":"MA_FSFORM_MST","oe":"재무제표양식","id":"FI_FSFORM","ie":"재무제표양식지정","note":"제조원가 5 ~ 8 장부는 이관제외","confirm":""},
+{"m":"","c":"","od":"MA_ACGRP_MST","oe":"계정그룹마스터","id":"FI_ACGRP","ie":"계정그룹정보","note":"","confirm":""},
+{"m":"","c":"","od":"MA_ACGRP_DTL","oe":"계정그룹디테일","id":"FI_GRPACCT","ie":"계정과목연결","note":"","confirm":""},
+{"m":"","c":"","od":"MA_GRPCAL_MST","oe":"계산그룹마스타","id":"FI_GRPCAL","ie":"계산그룹등록","note":"","confirm":""},
+{"m":"","c":"","od":"MA_ACCTMNG_MST","oe":"관리항목등록","id":"FI_MNG","ie":"관리항목","note":"","confirm":""},
+{"m":"","c":"","od":"MA_ACCTMNG_DTL","oe":"관리항목등록","id":"FI_MNGD","ie":"관리내역등록","note":"","confirm":""},
+{"m":"","c":"거래처","od":"MA_PARTNER_MST","oe":"거래처마스터","id":"MA_PARTNER","ie":"거래처","note":"","confirm":""},
+{"m":"","c":"","od":"MA_PARTNER_DEPOSIT","oe":"거래처계좌번호","id":"MA_PARTNER_DEPOSIT","ie":"거래처계좌번호","note":"","confirm":""},
+{"m":"","c":"","od":"MA_PARTNER_PTR","oe":"거래처담당자","id":"FI_PARTNERPTR","ie":"거래처담당자","note":"","confirm":""},
+{"m":"","c":"품목","od":"MA_ITEM","oe":"회사품목등록","id":"MA_ITEM","ie":"회사품목등록","note":"","confirm":""},
+{"m":"","c":"","od":"MA_ITEMGRP_INFO","oe":"품목그룹등록","id":"MA_ITEMGRP","ie":"품목그룹관리","note":"","confirm":""},
+{"m":"","c":"","od":"MA_PITEM","oe":"공장별품목마스터","id":"MA_PITEM","ie":"공장품목등록","note":"","confirm":""},
+{"m":"FI","c":"회계공통","od":"FI_FINPRODUCT_MST","oe":"금융상품","id":"FI_CARD","ie":"신용카드등록","note":"카드결재월, 카드결재일이 차월,차차월인 경우 OmniEsol에 코드가 없어 NULL로 치환","confirm":""},
+{"m":"FI","c":"","od":"","oe":"","id":"FI_DEPOSIT","ie":"예적금계좌등록","note":"회계단위는 ERPiU 사업장정보등록의 본점에 등록 된 회계단위로 이관","confirm":""},
+{"m":"FI","c":"","od":"","oe":"","id":"FI_LEAD","ie":"대여금","note":"자금코드 : 2070을 기본값으로 이관","confirm":""},
+{"m":"FI","c":"","od":"","oe":"","id":"FI_LOAN","ie":"차입금등록","note":"자금코드 : 1110을 기본값으로 이관(일반차입)","confirm":""},
+{"m":"","c":"초기이월","od":"FI_DOCU_MST","oe":"초기이월집계(계정별잔액)","id":"FI_DAYSUM","ie":"회계초기이월","note":"전표 이관 시작일(FROM_DT)의 -1일 날짜로 전표생성. OmniEsol에서 재집계 및 이월 필수","confirm":""},
+{"m":"","c":"","od":"FI_DOCU_DTL","oe":"초기이월집계(계정별잔액)","id":"FI_DAYSUM","ie":"회계초기이월","note":"","confirm":""},
+{"m":"","c":"","od":"FI_DOCU_MST","oe":"초기이월집계(관리항목별잔액)","id":"FI_MNGSUM","ie":"회계초기이월","note":"전표 이관 시작일(FROM_DT)의 -1일 날짜로 전표생성. OmniEsol에서 재집계 및 이월 필수","confirm":""},
+{"m":"","c":"","od":"FI_DOCU_DTL","oe":"초기이월집계(관리항목별잔액)","id":"FI_MNGSUM","ie":"회계초기이월","note":"","confirm":""},
+{"m":"","c":"","od":"FI_DOCU_SDTL","oe":"초기이월집계(관리항목별잔액)","id":"FI_MNGSUM","ie":"회계초기이월","note":"","confirm":""},
+{"m":"","c":"전표","od":"FI_DOCU_MST","oe":"전표","id":"FI_DOCU","ie":"전표","note":"","confirm":""},
+{"m":"","c":"","od":"FI_DOCU_DTL","oe":"전표내역","id":"FI_DOCU","ie":"전표","note":"","confirm":""},
+{"m":"","c":"","od":"FI_DOCU_SDTL","oe":"전표관리내역","id":"FI_DOCU","ie":"전표","note":"","confirm":""},
+{"m":"","c":"반제","od":"FI_DOCU_MST","oe":"과거반제전표마스터","id":"FI_BANH, FI_BAND","ie":"반제헤더, 디테일","note":"최초 이관 시작일(FROM_DT) 이전 반제라인만 전표생성","confirm":""},
+{"m":"","c":"","od":"FI_DOCU_DTL","oe":"과거반제전표디테일","id":"FI_BANH, FI_BAND","ie":"반제헤더, 디테일","note":"최초 이관 시작일(FROM_DT) 이전 반제라인만 전표생성","confirm":""},
+{"m":"","c":"","od":"FI_BAN_MST","oe":"반제원인","id":"FI_BANH","ie":"반제헤더","note":"전표 이관 시작일(FROM_DT) 지정과 무관하게 전체 반제데이터 이관","confirm":""},
+{"m":"","c":"","od":"FI_BAN_DTL","oe":"반제처리","id":"FI_BAND","ie":"반제디테일","note":"전표 이관 시작일(FROM_DT) 지정과 무관하게 전체 반제데이터 이관","confirm":""},
+{"m":"","c":"예산","od":"FI_BGACCT_MST","oe":"예산계정","id":"FI_BGACCT","ie":"예산계정","note":"","confirm":""},
+{"m":"","c":"","od":"FI_BIZPLANLV_MST","oe":"사업계획레벨","id":"FI_BIZLEVEL","ie":"사업계획레벨","note":"","confirm":""},
+{"m":"","c":"","od":"FI_BIZPLAN_MST","oe":"예산사업계획등록","id":"FI_BIZPLAN","ie":"예산사업계획등록","note":"","confirm":""},
+{"m":"","c":"","od":"FI_BGACGR_MST","oe":"예산계정그룹등록","id":"FI_BGACCTGRH","ie":"예산계정그룹등록(신)","note":"","confirm":""},
+{"m":"","c":"","od":"FI_BG_MST","oe":"예산단위마스타","id":"FI_BGCODE","ie":"예산단위","note":"","confirm":""},
+{"m":"","c":"","od":"FI_BGGR_MST","oe":"예산단위그룹등록","id":"FI_BUDGETGRH","ie":"예산단위 그룹 헤더","note":"","confirm":""},
+{"m":"","c":"","od":"FI_BGGR_INFO","oe":"예산단위그룹정보","id":"FI_BUDGETGRD","ie":"예산단위 그룹 상세","note":"","confirm":""},
+{"m":"","c":"","od":"FI_BGLV_MST","oe":"예산단위레벨","id":"FI_BGLEVEL","ie":"예산레벨","note":"","confirm":""},
+{"m":"","c":"","od":"FI_BGACCT_INFO","oe":"예산회계계정연결정보","id":"FI_BGACCTJO","ie":"예산계정-회계계정연결","note":"","confirm":""},
+{"m":"","c":"","od":"FI_BGBIZ_INFO","oe":"예산단위사업계획연결정보","id":"FI_BGCODEJO","ie":"예산단위-사업계획연결","note":"","confirm":""},
+{"m":"","c":"","od":"FI_BGDEPT_INFO","oe":"예산단위결의부서연결정보","id":"FI_BGDEPT","ie":"예산단위-부서연결","note":"","confirm":""},
+{"m":"","c":"","od":"FI_BIZPLAN_INFO","oe":"사업계획예산계정연결정보","id":"FI_BIZCODEJO","ie":"사업계획-예산계정연결","note":"","confirm":""},
+{"m":"","c":"","od":"FI_BGDEPOSIT_INFO","oe":"예산계정예적금연결정보","id":"FI_DEPOSITJO","ie":"예산계정예적금계좌연결","note":"","confirm":""},
+{"m":"","c":"","od":"FI_BMBGACCT_INFO","oe":"예산단위예산계정연결정보","id":"FI_BUDGETACCTJO","ie":"예산단위-예산계정연결","note":"","confirm":""},
+{"m":"","c":"","od":"FI_BGACGR_INFO","oe":"예산계정그룹정보","id":"FI_BGACCTGRD","ie":"예산계정그룹 상세","note":"","confirm":""},
+{"m":"","c":"세무","od":"FI_TAX_MST","oe":"세금계산서","id":"FI_TAX","ie":"세금계산서","note":"","confirm":""},
+{"m":"","c":"","od":"FI_TAX_DTL_ITEM","oe":"세금계산서품목","id":"FI_TAX","ie":"세금계산서","note":"","confirm":""},
+{"m":"","c":"","od":"","oe":"","id":"FI_TAX_ITEM","ie":"세금계산서","note":"","confirm":""},
+{"m":"","c":"","od":"FI_TAX_DTL_ASSET","oe":"세금계산서고정자산구입내역","id":"FI_ASSETTAX","ie":"세금계산서 고정자산 구입내역","note":"","confirm":""},
+{"m":"","c":"","od":"FI_CAR_INFO","oe":"업무용승용차차량등록","id":"FI_BIZCAR","ie":"업무용승용차등록","note":"차량번호(NM_BIZNO) 가 NULL 인 경우 CD_BIZCAR로 이관.","confirm":""},
+{"m":"","c":"자금","od":"FI_FUND_MST","oe":"자금과목","id":"FI_FUND","ie":"자금과목","note":"ERP10의 기본 자금과목 대신 ERPiU의 자금과목으로 대체","confirm":""},
+{"m":"","c":"","od":"FI_CARD_USER","oe":"카드사용자등록","id":"FI_CARD_USER","ie":"카드사용자등록","note":"","confirm":""},
+{"m":"","c":"","od":"FI_BILLDEBT_MST","oe":"지급어음","id":"FI_EBILL","ie":"전자어음","note":"자금과목 : 2020을 기본값으로 이관(지급어음결제)","confirm":""},
+{"m":"","c":"","od":"","oe":"","id":"FI_BILLDEBT","ie":"지급어음","note":"자금과목 : 2020을 기본값으로 이관(지급어음결제)","confirm":""},
+{"m":"","c":"","od":"FI_BILLDEBT_HST","oe":"지급어금히스토리","id":"FI_EBILL","ie":"전자어음","note":"최종상태만 이관하며 과거 이력은 이관하지 않음","confirm":""},
+{"m":"","c":"","od":"","oe":"","id":"FI_BILLDEBT","ie":"지급어음","note":"최종상태만 이관하며 과거 이력은 이관하지 않음","confirm":""},
+{"m":"","c":"","od":"FI_BILLNOTE_MST","oe":"어음책","id":"FI_BILLNOTE","ie":"어음책","note":"","confirm":""},
+{"m":"","c":"","od":"FI_FUNDMGT_MST","oe":"대여금내역","id":"FI_LEAD","ie":"대여금","note":"계산방법 : 2을 기본값으로 이관(일할계산)","confirm":""},
+{"m":"","c":"","od":"","oe":"","id":"FI_LOAN","ie":"차입금등록","note":"계산방법 : 2을 기본값으로 이관(일할계산)","confirm":""},
+{"m":"","c":"","od":"FI_FUNDINTER_HST","oe":"대여금변동이자","id":"FI_LEADRATE","ie":"대여금변동이자","note":"","confirm":""},
+{"m":"","c":"","od":"","oe":"","id":"FI_LOANRATE","ie":"차입금변동이율","note":"","confirm":""},
+{"m":"","c":"","od":"FI_STOCK_MST","oe":"유가증권입력","id":"FI_STOCK","ie":"유가증권","note":"","confirm":""},
+{"m":"","c":"","od":"FI_STOCKDEAL_INFO","oe":"유가증권-거래정보","id":"FI_STOCKTR","ie":"유가증권거래내역","note":"","confirm":""},
+{"m":"","c":"","od":"FI_BILLERS_MST","oe":"받을어음분할배서","id":"FI_EBILLERS","ie":"전자어음분할배서","note":"","confirm":""},
+{"m":"","c":"","od":"","oe":"","id":"FI_BILLERS","ie":"받을어음분할배서","note":"","confirm":""},
+{"m":"","c":"","od":"FI_BILLREC_MST","oe":"받을어음마스터","id":"FI_EBILL","ie":"전자어음","note":"","confirm":""},
+{"m":"","c":"","od":"","oe":"","id":"FI_BILLREC","ie":"받을어음","note":"","confirm":""},
+{"m":"HR","c":"인사공통","od":"HR_CODEBASE_MST","oe":"인사코드등록마스터","id":"HR_WCODE","ie":"근태코드등록","note":"","confirm":""},
+{"m":"","c":"","od":"","oe":"","id":"HR_HUDCODE","ie":"징계코드등록","note":"","confirm":""},
+{"m":"","c":"","od":"","oe":"","id":"HR_PCODE","ie":"급여코드등록","note":"","confirm":""},
+{"m":"","c":"","od":"","oe":"","id":"HR_HUANCODE","ie":"인사발령코드등록","note":"","confirm":""},
+{"m":"","c":"","od":"","oe":"","id":"HR_HUPCODE","ie":"포상코드등록","note":"","confirm":""},
+{"m":"","c":"","od":"","oe":"","id":"HR_RCODE","ie":"퇴직코드등록","note":"","confirm":""},
+{"m":"","c":"","od":"","oe":"","id":"MA_CODEDTL_근무조","ie":"코드등록_HR_G000001","note":"","confirm":""},
+{"m":"","c":"","od":"","oe":"","id":"MA_CODEDTL_동호회","ie":"코드등록_HR_H000040","note":"","confirm":""},
+{"m":"","c":"","od":"","oe":"","id":"MA_CODEDTL_자격증","ie":"코드등록_HR_H000033","note":"","confirm":""},
+{"m":"","c":"","od":"","oe":"","id":"MA_CODEDTL_전공코드","ie":"코드등록_HR_H000006","note":"","confirm":""},
+{"m":"","c":"","od":"","oe":"","id":"MA_CODEDTL_학과코드","ie":"코드등록_HR_H000013","note":"","confirm":""},
+{"m":"","c":"","od":"","oe":"","id":"MA_CODEDTL_학교","ie":"코드등록_HR_H000063","note":"","confirm":""},
+{"m":"","c":"","od":"HR_CODEBASE_DTL","oe":"인사코드등록디테일","id":"HR_WCODE","ie":"근태코드등록","note":"ERPiU에 존재하지 않는 설정값은 설정필요","confirm":""},
+{"m":"","c":"","od":"","oe":"","id":"HR_HUDCODE","ie":"징계코드등록","note":"","confirm":""},
+{"m":"","c":"","od":"","oe":"","id":"HR_PCODE","ie":"급여코드등록","note":"","confirm":""},
+{"m":"","c":"","od":"","oe":"","id":"HR_HUANCODE","ie":"인사발령코드등록","note":"H01, H02, H03, H04, H05, H06, H07, H08, H09, H11, H12, H13, H17, H18, H24, H22, P05 코드만 이관","confirm":""},
+{"m":"","c":"","od":"","oe":"","id":"HR_RCODE","ie":"퇴직코드등록","note":"","confirm":""},
+{"m":"","c":"인사관리","od":"HR_EMP_MST","oe":"사원마스터","id":"MA_EMP","ie":"사원","note":"고용형태가 상용직(001), 일용직(002)인 데이터만 이관","confirm":""},
+{"m":"","c":"","od":"HR_EMPINFO_DTL","oe":"사원인사디테일","id":"MA_EMP","ie":"사원","note":"종교관련종사여부가 해당인 경우 근로소득으로 이관","confirm":""},
+{"m":"","c":"","od":"HR_EMPPAY_DTL","oe":"사원급여디테일","id":"MA_EMP","ie":"사원","note":"","confirm":""},
+{"m":"","c":"","od":"HR_FAMILY_MST","oe":"사원등록-가족사항","id":"HR_FAMILY","ie":"사원등록-가족사항","note":"","confirm":""},
+{"m":"","c":"","od":"HR_PJTCAREER_MST","oe":"사원등록-프로젝트","id":"HR_HPJTCAREER","ie":"사원등록-PJT경력","note":"","confirm":""},
+{"m":"","c":"","od":"HR_SCHOCARE_MST","oe":"학력","id":"HR_SCHOCARE","ie":"학력","note":"","confirm":""},
+{"m":"","c":"","od":"HR_GUARANTEE_MST","oe":"인보증","id":"HR_GUARANTEE","ie":"인보증","note":"","confirm":""},
+{"m":"","c":"","od":"HR_LICENSE_MST","oe":"자격면허","id":"HR_LICENSE","ie":"자격면허","note":"","confirm":""},
+{"m":"","c":"","od":"HR_GUARINSU_MST","oe":"보증보험","id":"HR_GUAR_INSU","ie":"보증보험","note":"가입여부는 모두 Y 로 이관","confirm":""},
+{"m":"","c":"","od":"HR_VISAMGR_MST","oe":"여권비자","id":"HR_VISAMGR","ie":"여권비자","note":"","confirm":""},
+{"m":"","c":"","od":"HR_FORELANG_MST","oe":"외국어","id":"HR_FORELANG","ie":"외국어","note":"외국어 등급, 외국어 능력은 이관제외","confirm":""},
+{"m":"","c":"","od":"HR_CAREER_MST","oe":"경력","id":"HR_CAREER","ie":"경력","note":"","confirm":""},
+{"m":"","c":"","od":"HR_RECOMMEND_MST","oe":"추천인","id":"HR_RECOMMEND","ie":"추천인","note":"","confirm":""},
+{"m":"","c":"포상징계","od":"HR_HUPRIZE_LIST","oe":"포상내역등록","id":"HR_HUPRIZE","ie":"포상내역등록","note":"","confirm":""},
+{"m":"","c":"","od":"HR_HUDISCIP_LIST","oe":"징계내역등록","id":"HR_HUDISCIP","ie":"포상내역등록","note":"","confirm":""},
+{"m":"","c":"인사발령","od":"HR_HUANHST_MST","oe":"과거발령자료마스터","id":"HR_HUANH_HS","ie":"과거발령자료등록","note":"사번발령은 이관제외","confirm":""},
+{"m":"","c":"","od":"HR_HUANHST_DTL","oe":"과거발령자료디테일","id":"HR_HUAND_HS","ie":"과거발령자료등록","note":"","confirm":""},
+{"m":"","c":"","od":"HR_HUAN_MST","oe":"인사발령마스터","id":"HR_HUANHEAD","ie":"인사발령HEAD","note":"","confirm":""},
+{"m":"","c":"","od":"HR_HUAN_DTL","oe":"인사발령디테일","id":"HR_HUAN_PH","ie":"인사발령HEAD(사원)","note":"H01, H02, H03, H04, H05, H06, H07, H08, H09, H11, H12, H13, H17, H18, H24, H22, P05 코드만 이관","confirm":""},
+{"m":"","c":"","od":"HR_HUAN_SDTL","oe":"인사발령서브디테일","id":"HR_HUANDETAIL","ie":"인사발령디테일","note":"","confirm":""},
+{"m":"","c":"","od":"HR_HUAN_LIST","oe":"인사발령대상자","id":"HR_HUANEMP","ie":"발령대상자선정","note":"","confirm":""},
+{"m":"","c":"","od":"HR_HUANLOA_HST","oe":"휴직발령이력","id":"HR_HUAN_LOA","ie":"휴직기간등록_발령","note":"","confirm":""},
+{"m":"","c":"인재육성","od":"HR_EDUCODE_INFO","oe":"교육과정정보","id":"HR_HUEDUCODE","ie":"교육코드및일정등록","note":"","confirm":""},
+{"m":"","c":"","od":"HR_EDUOPEN_INFO","oe":"교육과정개설정보","id":"HR_HUEDUCODE","ie":"교육코드및일정등록","note":"","confirm":""},
+{"m":"","c":"","od":"HR_EDUTGET_LIST","oe":"교육대상자리스트","id":"HR_HUEDUPER","ie":"교육대상자등록","note":"","confirm":""},
+{"m":"","c":"","od":"HR_EDUCOM_INFO","oe":"교육기관정보","id":"MA_CODEDTL_HR_H000120","ie":"코드등록_HR_H000120","note":"","confirm":""},
+{"m":"","c":"","od":"HR_EDUTRGT_INFO","oe":"교육대상등록정보","id":"HR_HUEPCODE","ie":"대상코드등록","note":"","confirm":""},
+{"m":"","c":"","od":"HR_EDULEC_INFO","oe":"강사정보","id":"HR_HLECTURE","ie":"강사관리","note":"","confirm":""},
+{"m":"","c":"급여관리","od":"HR_LOANCODE_MST","oe":"대출코드마스터","id":"HR_PLENDCODE","ie":"대출코드등록","note":"","confirm":""},
+{"m":"","c":"","od":"HR_LOAN_MST","oe":"대출내역마스터","id":"HR_PLENDHEAD","ie":"대출상환스케쥴헤드","note":"","confirm":""},
+{"m":"","c":"","od":"HR_LOAN_DTL","oe":"대출내역디테일","id":"HR_PLENDDETAIL","ie":"대출상황스케쥴디테일","note":"","confirm":""},
+{"m":"","c":"","od":"HR_FMLYEVT_PAY_MST","oe":"경조사내역마스터","id":"HR_PCONHEAD","ie":"경조사내역헤드","note":"","confirm":""},
+{"m":"","c":"","od":"HR_FMLYEVT_PAY_DTL","oe":"경조사내역디테일","id":"HR_PCONDETAIL","ie":"경조사내역디테일","note":"","confirm":""},
+{"m":"","c":"","od":"HR_SCHEXP_MST","oe":"학자금지원정보마스터","id":"HR_HUCEF","ie":"학자금등록","note":"","confirm":""},
+{"m":"","c":"","od":"HR_DATE_INFO","oe":"귀속기간설정","id":"HR_WCLOSE","ie":"기간산정기준","note":"","confirm":""},
+{"m":"","c":"","od":"HR_PAYSTEP_INFO","oe":"호봉등록","id":"HR_PSALCLASS","ie":"호봉등록","note":"","confirm":""},
+{"m":"","c":"","od":"HR_PAYFIX_INFO","oe":"책정임금등록","id":"HR_PFIX","ie":"책정임금등록","note":"","confirm":""},
+{"m":"","c":"","od":"HR_PFLUCT_MST","oe":"변동급여등록","id":"HR_PFLUCT","ie":"변동급여등록","note":"","confirm":""},
+{"m":"","c":"","od":"HR_PAYCHK_INFO","oe":"체크항목등록","id":"HR_PCHKINFO","ie":"체크항목등록","note":"","confirm":""},
+{"m":"","c":"","od":"HR_PCALCITEM_MST","oe":"계산식등록(H)","id":"HR_PCALCHEAD","ie":"계산식등록 헤드","note":"","confirm":""},
+{"m":"","c":"","od":"HR_PCALCITEM_DTL","oe":"계산식등록(D)","id":"-","ie":"-","note":"계산식설정은 OmniEsol 계산식조건항목마스터(HR_PCALCCODE_MST) 기본 처리옵션으로 생성하며 직접 설정","confirm":""},
+{"m":"","c":"","od":"HR_PTITLE_INFO","oe":"급여타이틀설정정보","id":"HR_PTITLE","ie":"급여타이틀","note":"","confirm":""},
+{"m":"","c":"","od":"HR_PCALCPAY_MST","oe":"급여계산마스터","id":"HR_PCALCPAY","ie":"급여계산","note":"이관 전 [급여기준등록] 설정 필요. 세무급여집계정보테이블에는 집계하지 않으므로 마감작업 필요","confirm":""},
+{"m":"","c":"","od":"HR_PCALCPAY_DTL","oe":"급여계산디테일","id":"HR_PCALCPAY","ie":"급여계산","note":"OmniEsol에서 세무신고 대상인 귀속년월의 데이터는 계산식 세팅 후 비과세 재계산 후 금액검증 필수","confirm":""},
+{"m":"","c":"","od":"HR_PCALCTAX_INFO","oe":"급여과세정보","id":"HR_PCALCPAY","ie":"급여계산","note":"OmniEsol에서 세무신고 대상인 귀속년월의 데이터는 계산식 세팅 후 비과세 재계산 후 금액검증 필수","confirm":""},
+{"m":"","c":"","od":"HR_PCALCNOTAX_INFO","oe":"급여비과세정보","id":"HR_PCALCPAY_N","ie":"급여비과세","note":"","confirm":""},
+{"m":"","c":"","od":"HR_PDCALCPAY_MST","oe":"일용직급여계산마스터","id":"HR_PDCALCPAY","ie":"일용직급여계산","note":"","confirm":""},
+{"m":"","c":"","od":"HR_PDCALCPAY_DTL","oe":"일용직급여계산디테일","id":"HR_PDCALCPAY","ie":"일용직급여계산","note":"OmniEsol에서 세무신고 대상인 귀속년월의 데이터는 계산식 세팅 후 비과세 재계산 후 금액검증 필수","confirm":""},
+{"m":"","c":"","od":"HR_PDCALCTAX_INFO","oe":"일용직급여과세정보","id":"HR_PDCALCPAY","ie":"일용직급여계산","note":"OmniEsol에서 세무신고 대상인 귀속년월의 데이터는 계산식 세팅 후 비과세 재계산 후 금액검증 필수","confirm":""},
+{"m":"","c":"","od":"HR_PDCALCNOTAX_INFO","oe":"일용직급여비과세정보","id":"HR_PDCALCPAY_N","ie":"일용직급여계산","note":"","confirm":""},
+{"m":"","c":"","od":"HR_PDYWORK_INFO","oe":"일용직근무일수정보","id":"HR_PDYWORK","ie":"근무일수등록","note":"","confirm":""},
+{"m":"","c":"","od":"HR_PDTERM_INFO","oe":"일용직기간등록","id":"HR_PDTERMS","ie":"일용직기간등록","note":"","confirm":""},
+{"m":"","c":"퇴직관리","od":"HR_RPAYCALC_MST","oe":"퇴직마스터","id":"HR_RPAYHEAD_2013","ie":"퇴직금정산(신)","note":"이관 전 [퇴직기준등록] 설정 필요. 평균임금기간 입력 필수","confirm":""},
+{"m":"","c":"","od":"HR_RPAYCALC_DTL","oe":"퇴직금계산디테일","id":"HR_RPAYHEAD_2013","ie":"퇴직금정산(신)","note":"","confirm":""},
+{"m":"","c":"","od":"HR_RPAYPERIOD_MST","oe":"퇴직구간마스터","id":"HR_RPAYDETAIL","ie":"퇴직금계산디테일","note":"","confirm":""},
+{"m":"","c":"","od":"HR_RPAYPERIOD_DTL","oe":"퇴직구간디테일","id":"HR_RTPAY","ie":"퇴직급여내역","note":"","confirm":""},
+{"m":"","c":"","od":"","oe":"","id":"HR_RBUPAY","ie":"퇴직상여년월차","note":"","confirm":""},
+{"m":"","c":"","od":"HR_RPAYTAX_MST","oe":"퇴직소득세계산마스터","id":"HR_RPAYHEAD_2013","ie":"퇴직금정산(신)","note":"OmniEsol에서 세무신고 대상인 귀속년월의 데이터는 세금계산 후 금액검증 필수","confirm":""},
+{"m":"","c":"","od":"HR_RPAYTAX_DTL","oe":"퇴직소득세계산디테일","id":"HR_RPAYHEAD_2013","ie":"퇴직금정산(신)","note":"OmniEsol에서 세무신고 대상인 귀속년월의 데이터는 세금계산 후 금액검증 필수","confirm":""},
+{"m":"","c":"","od":"HR_RDIFFERPAY_INFO","oe":"과세이연정보","id":"HR_RCFPAY","ie":"퇴직금계산(비과세 도움창)","note":"은행코드(BANK_CD) 이관제외","confirm":""},
+{"m":"","c":"","od":"HR_ROLDPLACE_INFO","oe":"퇴직금종전근무지정보","id":"HR_ROLDPLACE_2013","ie":"퇴직종전근무지(신)","note":"","confirm":""},
+{"m":"","c":"근태관리","od":"HR_DATE_INFO","oe":"귀속기간설정","id":"HR_WCLOSE","ie":"기간산정기준","note":"","confirm":""},
+{"m":"","c":"","od":"HR_OFFTIME_INFO","oe":"식사/휴식시간정보","id":"HR_WEAT","ie":"식사/휴식시간등록","note":"시간구분(TM_FG_CD)이 '000' 인 경우 직접 설정","confirm":""},
+{"m":"","c":"","od":"HR_OFFTIME_MST","oe":"근태시간코드마스터","id":"HR_WTMCODE","ie":"근태시간코드등록","note":"","confirm":""},
+{"m":"","c":"","od":"HR_OFFTIME_DTL","oe":"근태시간코드디테일","id":"HR_WTMCODE","ie":"근태시간코드등록","note":"시간이 24 : 00의 경우 익일로 이관","confirm":""},
+{"m":"","c":"","od":"HR_OFFTIME_SDTL","oe":"근태시간코드서브디테일","id":"HR_WTMCODE","ie":"근태시간코드등록","note":"","confirm":""},
+{"m":"","c":"","od":"HR_OFFPART_INFO","oe":"계획근무조유형정보","id":"HR_WPATTERN","ie":"근무조유형등록","note":"","confirm":""},
+{"m":"","c":"","od":"HR_OFFPLAN_INFO","oe":"계획근무시간정보","id":"HR_WHOLY","ie":"근무조계획등록","note":"","confirm":""},
+{"m":"","c":"","od":"HR_OFFPEMP_INFO","oe":"개인별근무계획정보","id":"HR_WPPLAN","ie":"개인별근무계획등록","note":"","confirm":""},
+{"m":"","c":"","od":"HR_OFFDAILY_MST","oe":"일근태마스터","id":"HR_WTMCALC","ie":"월별근태등록","note":"이관 전 [근태기준등록] 설정 필수","confirm":""},
+{"m":"","c":"","od":"HR_OFFDAILY_DTL","oe":"일근태디테일","id":"HR_WTMCALC","ie":"월별근태등록","note":"비고(RMK_DC) 이관제외","confirm":""},
+{"m":"","c":"","od":"HR_OFFOUT_INFO","oe":"외출시간정보","id":"HR_WOUT","ie":"외출시간","note":"","confirm":""},
+{"m":"","c":"","od":"HR_OFFCARD_INFO","oe":"사원카드번호연결정보","id":"HR_WECMATCH","ie":"카드사원번호연결","note":"","confirm":""},
+{"m":"","c":"","od":"HR_OFFYEAR_LIST","oe":"연월차관리","id":"HR_WYEAR","ie":"연월차관리","note":"","confirm":""},
+{"m":"","c":"","od":"HR_REFM_OFFUYEAR_LIST","oe":"개정1년미만연차내역","id":"HR_WYEARNEW","ie":"1년미만연차내역","note":"","confirm":""},
+{"m":"","c":"","od":"HR_OFFTOT_MST","oe":"월근태집계마스터","id":"HR_WTMTOT","ie":"월근태집계","note":"근무조(TKG_CD)는 이관 제외","confirm":""},
+{"m":"","c":"","od":"HR_OFFTOT_DTL","oe":"월근태집계디테일","id":"HR_WTMTOT","ie":"월근태집계","note":"지각, 조퇴, 외출은 평일로 이관","confirm":""},
+{"m":"","c":"","od":"HR_OFFTOT_SDTL","oe":"월근태집계서브디테일","id":"HR_WTMTOT","ie":"월근태집계","note":"001,002,003,004,005,006,G02,G03,G04,G05,G06,G07,G99 코드는 이관제외","confirm":""},
+{"m":"","c":"연말정산","od":"HR_YREND_MST","oe":"연말정산마스터","id":"HPOLBEC","ie":"연말정산자료입력","note":"연말정산 테이블은 2022년 귀속년도부터 이관가능","confirm":""},
+{"m":"","c":"","od":"HR_YREND_DTL","oe":"연말정산디테일","id":"HFAMILY","ie":"부양가족","note":"","confirm":""},
+{"m":"","c":"","od":"HR_YREND_FMLYCNT","oe":"연말정산공제항목별공제인원수","id":"HFAMLSN","ie":"부양가족수","note":"","confirm":""},
+{"m":"","c":"","od":"HR_YREND_FMLY_MST","oe":"연말정산부양가족마스터","id":"HFAMILY","ie":"부양가족","note":"","confirm":""},
+{"m":"","c":"","od":"HR_YREND_FMLY_DTL","oe":"연말정산부양가족디테일","id":"HFAMILY","ie":"부양가족","note":"","confirm":""},
+{"m":"","c":"","od":"HR_YRENDNOTAX_LIST","oe":"연말정산비과세내역","id":"HENOTAX","ie":"연말정산 비과세","note":"","confirm":""},
+{"m":"","c":"","od":"HR_YRENDWORK_MST","oe":"연말정산근무지마스터","id":"HPMBFOC","ie":"현근무지급여, 종전근무지","note":"","confirm":""},
+{"m":"","c":"","od":"HR_YRENDWORK_DTL","oe":"연말정산근무지디테일","id":"HPMBFOC","ie":"현근무지급여, 종전근무지","note":"","confirm":""},
+{"m":"","c":"","od":"HR_YRENDDON_LIST","oe":"연말정산기부금명세","id":"HCTRIBT","ie":"기부금명세","note":"","confirm":""},
+{"m":"","c":"","od":"HR_YRENDDONAD_LIST","oe":"연말정산기부금조정명세","id":"HCTRIBT3","ie":"기부금조정명세 소득공제","note":"","confirm":""},
+{"m":"","c":"","od":"HR_YRENDUNION_LIST","oe":"노동조합비명세서","id":"HCTRIBT","ie":"기부금명세","note":"","confirm":""},
+{"m":"","c":"","od":"HR_YRENDMED_LIST","oe":"연말정산의료비내역","id":"HMEDICAL","ie":"의료비명세","note":"","confirm":""},
+{"m":"","c":"","od":"HR_YRENDRENT_LIST","oe":"연말정산주택임차내역","id":"HRENT","ie":"연말정산주택임차내역","note":"","confirm":""},
+{"m":"","c":"","od":"HR_YRENDSAVE_LIST","oe":"연말정산저축내역","id":"HPENSION","ie":"연금저축공제명세서","note":"","confirm":""},
+{"m":"","c":"","od":"HR_YREND_CHBSP_LIST","oe":"연말정산출산지원금","id":"HCHILDPAY","ie":"연말정산출산지원금","note":"","confirm":""},
+{"m":"","c":"","od":"HR_YREND_SURV_LIST","oe":"연말정산기초설문","id":"HPOLBEC","ie":"연말정산자료입력","note":"","confirm":""},
+{"m":"","c":"","od":"HR_YRENDRESULT_MST","oe":"연말정산결과마스터","id":"HPRLBEC","ie":"연말정산 정산명세","note":"","confirm":""},
+{"m":"","c":"","od":"HR_YRENDRESULT_DTL","oe":"연말정산결과디테일","id":"HPRLBEC","ie":"연말정산 정산명세","note":"","confirm":""},
+{"m":"","c":"","od":"HR_YRENDTAX_INFO","oe":"연말정산납부세액정보","id":"HPOLTX","ie":"연말정산분납","note":"","confirm":""}
+];
+</script>
+<script>
+/* ── iCUBE → OmniEsol 테이블 매핑 데이터 (직접 입력) ── */
+/* 형식: { "m":"모듈", "c":"구분", "od":"OmniEsol테이블명", "oe":"OmniEsol설명", "id":"iCUBE테이블명", "ie":"iCUBE설명", "note":"", "confirm":"" } */
+const ICUBE_SCOPE_DATA = [
+{"m":"CI","c":"사용자","od":"CI_USER_MST","oe":"통합사용자등록","id":"SEMP","ie":"사원등록","note":"패스워드는 PASSWD로 암호화","confirm":""},
+{"m":"","c":"","od":"CI_EMP_MST","oe":"통합사원등록","id":"SEMP","ie":"사원등록","note":"일용직이 아닌 경우 모두 상용직으로 이관","confirm":""},
+{"m":"","c":"회계계정","od":"CI_COA_MST","oe":"통합회계계정","id":"SACCT","ie":"계정과목","note":"마이그레이션 이후 계정속성 검토필요","confirm":""},
+{"m":"","c":"","od":"CI_COA_DTL","oe":"통합회계계정관리항목","id":"SACCT","ie":"계정과목","note":"","confirm":""},
+{"m":"","c":"","od":"CI_COA_MULTIATTR","oe":"통합회계계정속성","id":"SACCT","ie":"계정과목","note":"반제처리(Z01), 화폐성(Z02) 레코드만 생성","confirm":""},
+{"m":"","c":"","od":"CI_ACCTMNG_MST","oe":"관리항목등록","id":"SCTRL","ie":"관리내역등록","note":"","confirm":""},
+{"m":"","c":"","od":"CI_ACCTMNG_DTL","oe":"관리항목등록","id":"SCTRL_D","ie":"관리내역 디테일","note":"","confirm":""},
+{"m":"","c":"거래처","od":"CI_PARTNER_MST","oe":"통합거래처마스터","id":"STRADE","ie":"거래처등록","note":"","confirm":""},
+{"m":"MA","c":"조직","od":"MA_BIZAREA_MST","oe":"사업장등록","id":"SDIV","ie":"사업장등록","note":"","confirm":""},
+{"m":"","c":"","od":"MA_DEPT_MST","oe":"부서정보등록","id":"SDEPT","ie":"부서등록","note":"","confirm":""},
+{"m":"","c":"","od":"MA_CC_MST","oe":"비용센터마스터","id":"SDEPT","ie":"코스트센터","note":"","confirm":""},
+{"m":"","c":"","od":"PS_PROJ_MST","oe":"프로젝트마스터","id":"SPJT","ie":"프로젝트등록","note":"","confirm":""},
+{"m":"","c":"","od":"PS_PROJ_SDTL","oe":"프로젝트서브디테일","id":"SPJT","ie":"프로젝트등록","note":"","confirm":""},
+{"m":"","c":"","od":"PS_WBS_MST","oe":"WBS마스터","id":"SPJT","ie":"프로젝트등록","note":"","confirm":""},
+{"m":"","c":"","od":"PS_WBS_SDTL","oe":"WBS서브디테일","id":"SPJT","ie":"프로젝트등록","note":"","confirm":""},
+{"m":"","c":"코드관리","od":"MA_CODEDTL","oe":"코드관리","id":"SCTRL_D","ie":"관리내역 디테일","note":"","confirm":""},
+{"m":"","c":"","od":"MA_CODEDTL_SDTL","oe":"코드관리_다국어","id":"SCTRL_D","ie":"관리내역 디테일","note":"","confirm":""},
+{"m":"","c":"회계계정","od":"MA_COA_MST","oe":"회계계정","id":"SACCT","ie":"계정과목","note":"마이그레이션 이후 계정속성 검토필요","confirm":""},
+{"m":"","c":"","od":"MA_COA_DTL","oe":"회계계정관리항목","id":"SACCT","ie":"계정과목","note":"","confirm":""},
+{"m":"","c":"","od":"MA_COA_MULTIATTR","oe":"회계계정속성","id":"SACCT","ie":"계정과목","note":"","confirm":""},
+{"m":"","c":"","od":"MA_ACCTMNG_MST","oe":"관리항목등록","id":"SCTRL","ie":"관리내역등록","note":"","confirm":""},
+{"m":"","c":"","od":"MA_ACCTMNG_DTL","oe":"관리항목등록","id":"SCTRL_D","ie":"관리내역 디테일","note":"","confirm":""},
+{"m":"","c":"거래처","od":"MA_PARTNER_MST","oe":"거래처마스터","id":"STRADE","ie":"거래처등록","note":"","confirm":""},
+{"m":"","c":"","od":"MA_PARTNER_DEPOSIT","oe":"거래처계좌번호","id":"STRADE","ie":"거래처등록","note":"","confirm":""},
+{"m":"","c":"","od":"MA_PARTNER_PTR","oe":"거래처계좌번호","id":"STRADE_REC","ie":"거래처상세 고객등록","note":"","confirm":""},
+{"m":"FI","c":"회계기초","od":"FI_FINPRODUCT_MST","oe":"금융상품","id":"STRADE","ie":"거래처등록","note":"","confirm":""},
+{"m":"","c":"","od":"FI_FUNDMGT_MST","oe":"운용상품마스터","id":"STRADE","ie":"거래처등록","note":"","confirm":""},
+{"m":"","c":"초기이월","od":"FI_DOCU_MST","oe":"초기이월집계(계정별잔액)","id":"APREV","ie":"회계초기이월","note":"전표 이관 시작일(FROM_DT)의 -1일 날짜로 전표생성. OmniEsol에서 재집계 및 이월 필수","confirm":""},
+{"m":"","c":"","od":"FI_DOCU_DTL","oe":"초기이월집계(계정별잔액)","id":"APREV","ie":"회계초기이월","note":"","confirm":""},
+{"m":"","c":"","od":"FI_DOCU_MST","oe":"초기이월집계(관리항목별잔액)","id":"APREV","ie":"회계초기이월","note":"전표 이관 시작일(FROM_DT)의 -1일 날짜로 전표생성. OmniEsol에서 재집계 및 이월 필수","confirm":""},
+{"m":"","c":"","od":"FI_DOCU_DTL","oe":"초기이월집계(관리항목별잔액)","id":"APREV","ie":"회계초기이월","note":"","confirm":""},
+{"m":"","c":"","od":"FI_DOCU_SDTL","oe":"초기이월집계(관리항목별잔액)","id":"APREV","ie":"회계초기이월","note":"회계단위가 존재하지 않아 사업장코드로 이관","confirm":""},
+{"m":"","c":"전표","od":"FI_DOCU_MST","oe":"전표","id":"ADOCUH","ie":"전표헤드","note":"","confirm":""},
+{"m":"","c":"","od":"FI_DOCU_DTL","oe":"전표내역","id":"ADOCUD","ie":"전표디테일","note":"거래처의 경우 거래처매핑테이블 구분에 따라 반영. GUBUN 이 6, 7, 9 는 관리항목에서 처리","confirm":""},
+{"m":"","c":"","od":"FI_DOCU_SDTL","oe":"전표관리내역","id":"ADOCUD","ie":"전표디테일","note":"GUBUN 5 => A09금융기관, GUBUN 6, 7 => A07금융계좌, GUBUN 9 => A08신용카드","confirm":""},
+{"m":"","c":"반제","od":"FI_DOCU_MST","oe":"반제잔액전표","id":"ADOCUD","ie":"전표디테일","note":"","confirm":""},
+{"m":"","c":"","od":"FI_DOCU_DTL","oe":"반제잔액전표내역","id":"ADOCUD","ie":"전표디테일","note":"전표 이관 TO_DT 날짜로 잔액 생성","confirm":""},
+{"m":"","c":"","od":"FI_DOCU_SDTL","oe":"전표관리내역","id":"ADOCUD","ie":"전표디테일","note":"","confirm":""},
+{"m":"","c":"","od":"FI_BAN_MST","oe":"반제잔액마스터","id":"ADOCUD","ie":"전표디테일","note":"","confirm":""},
+{"m":"","c":"세무","od":"FI_TAX_MST","oe":"세금계산서","id":"ATAX","ie":"부가세","note":"","confirm":""},
+{"m":"","c":"","od":"FI_TAX_DTL_ITEM","oe":"세금계산서품목","id":"ATAX","ie":"부가세","note":"","confirm":""},
+{"m":"","c":"","od":"","oe":"","id":"ATAX_ITEM","ie":"부가세품목","note":"","confirm":""},
+{"m":"","c":"","od":"FI_TAX_DTL_ASSET","oe":"세금계산서고정자산구입내역","id":"AVASSET2","ie":"건물등감가상각자산취득명세","note":"","confirm":""},
+{"m":"","c":"","od":"FI_CAR_INFO","oe":"업무용승용차차량등록","id":"ABIZCAR","ie":"업무용승용차등록","note":"","confirm":""},
+{"m":"HR","c":"인사공통","od":"HR_CODEBASE_MST","oe":"인사코드등록마스터","id":"SCTRL_D_근태","ie":"인사기초코드등록_T4","note":"","confirm":""},
+{"m":"","c":"","od":"","oe":"","id":"SCTRL_D_급여","ie":"인사기초코드등록_P2,P3","note":"","confirm":""},
+{"m":"","c":"","od":"","oe":"","id":"SCTRL_D_인사발령","ie":"인사기초코드등록_HD","note":"","confirm":""},
+{"m":"","c":"","od":"","oe":"","id":"SCTRL_D_퇴직","ie":"인사기초코드등록_EK,KL","note":"","confirm":""},
+{"m":"","c":"","od":"","oe":"","id":"SCTRL_D_상벌","ie":"인사기초코드등록_H8","note":"","confirm":""},
+{"m":"","c":"","od":"","oe":"","id":"SCTRL_D_포상","ie":"인사기초코드등록_H8","note":"","confirm":""},
+{"m":"","c":"","od":"","oe":"","id":"SCTRL_D_근무조","ie":"인사기초코드등록_O2","note":"","confirm":""},
+{"m":"","c":"","od":"","oe":"","id":"SCTRL_D_동호회","ie":"인사기초코드등록_R3","note":"","confirm":""},
+{"m":"","c":"","od":"","oe":"","id":"SCTRL_D_자격증","ie":"인사기초코드등록_H9","note":"","confirm":""},
+{"m":"","c":"","od":"","oe":"","id":"SCTRL_D_전공코드","ie":"인사기초코드등록_HZ","note":"","confirm":""},
+{"m":"","c":"","od":"","oe":"","id":"SCTRL_D_학교","ie":"인사기초코드등록_HY","note":"","confirm":""},
+{"m":"","c":"","od":"HR_CODEBASE_DTL","oe":"인사코드등록디테일","id":"SCTRL_D_근태","ie":"인사기초코드등록_T4","note":"","confirm":""},
+{"m":"","c":"","od":"","oe":"","id":"SCTRL_D_상벌","ie":"인사기초코드등록_T4","note":"","confirm":""},
+{"m":"","c":"","od":"","oe":"","id":"SCTRL_D_급여","ie":"인사기초코드등록_P2,P3","note":"","confirm":""},
+{"m":"","c":"","od":"","oe":"","id":"SCTRL_D_인사발령","ie":"인사기초코드등록_HD","note":"","confirm":""},
+{"m":"","c":"","od":"","oe":"","id":"SCTRL_D_퇴직","ie":"인사기초코드등록_EK,KL","note":"","confirm":""},
+{"m":"","c":"인사관리","od":"HR_EMP_MST","oe":"사원마스터","id":"SEMP","ie":"사원등록","note":"","confirm":""},
+{"m":"","c":"","od":"HR_EMPINFO_DTL","oe":"사원인사디테일","id":"HHMEPAD","ie":"인사기록카드상세","note":"","confirm":""},
+{"m":"","c":"","od":"HR_EMPPAY_DTL","oe":"사원급여디테일","id":"SEMP","ie":"사원등록","note":"","confirm":""},
+{"m":"","c":"","od":"HR_FAMILY_MST","oe":"가족사항","id":"HHMFMLY","ie":"가족","note":"","confirm":""},
+{"m":"","c":"","od":"HR_SCHOCARE_MST","oe":"학력","id":"HHMSCIF","ie":"학력","note":"","confirm":""},
+{"m":"","c":"","od":"HR_GUARANTEE_MST","oe":"인보증","id":"HHMIDWT","ie":"인보증","note":"","confirm":""},
+{"m":"","c":"","od":"HR_LICENSE_MST","oe":"자격면허","id":"HHMLSCT","ie":"자격면허","note":"","confirm":""},
+{"m":"","c":"","od":"HR_GUARINSU_MST","oe":"보증보험","id":"HHMGTIS","ie":"보증보험","note":"","confirm":""},
+{"m":"","c":"","od":"HR_VISAMGR_MST","oe":"여권비자","id":"HHMPPVS","ie":"여권비자","note":"","confirm":""},
+{"m":"","c":"","od":"HR_FORELANG_MST","oe":"외국어","id":"HHMEDIF","ie":"어학","note":"","confirm":""},
+{"m":"","c":"","od":"HR_CAREER_MST","oe":"경력","id":"HHMCRER","ie":"경력","note":"","confirm":""},
+{"m":"","c":"","od":"HR_RECOMMEND_MST","oe":"추천인","id":"HRECOMD","ie":"추천인","note":"","confirm":""},
+{"m":"","c":"","od":"HR_CLUBMEMBER_INFO","oe":"동호회","id":"HHMCPIF","ie":"동호회","note":"","confirm":""},
+{"m":"","c":"포상징계","od":"HR_HUPRIZE_LIST","oe":"포상내역등록","id":"HPRIPEN","ie":"상벌관리","note":"","confirm":""},
+{"m":"","c":"","od":"HR_HUDISCIP_LIST","oe":"징계내역등록","id":"HPRIPEN","ie":"상벌관리","note":"","confirm":""},
+{"m":"","c":"발령","od":"HR_HUAN_MST","oe":"인사발령마스터","id":"HHOANAP","ie":"인사발령헤더","note":"","confirm":""},
+{"m":"","c":"","od":"HR_HUAN_DTL","oe":"인사발령디테일","id":"HHOAATP","ie":"인사발령대상자","note":"","confirm":""},
+{"m":"","c":"","od":"HR_HUAN_SDTL","oe":"인사발령서브디테일","id":"HHOAATP_D","ie":"인사발령내역","note":"","confirm":""},
+{"m":"","c":"","od":"HR_HUAN_LIST","oe":"인사발령대상자","id":"HHOAATP","ie":"인사발령대상자","note":"","confirm":""},
+{"m":"","c":"","od":"HR_HUANHST_MST","oe":"과거발령자료마스터","id":"HHOANAP","ie":"인사발령헤더","note":"","confirm":""},
+{"m":"","c":"","od":"","oe":"","id":"HRESTDT","ie":"휴직관리","note":"","confirm":""},
+{"m":"","c":"","od":"HR_HUANHST_DTL","oe":"과거발령자료디테일","id":"HHOAATP_D","ie":"인사발령내역","note":"","confirm":""},
+{"m":"","c":"인재육성","od":"HR_EDUCODE_INFO","oe":"교육과정정보","id":"HEDUINFO","ie":"교육관리","note":"","confirm":""},
+{"m":"","c":"","od":"HR_EDUOPEN_INFO","oe":"교육과정개설정보","id":"HEDUINFO","ie":"교육관리","note":"","confirm":""},
+{"m":"","c":"","od":"HR_EDUTGET_LIST","oe":"교육대상자리스트","id":"HEDUPER","ie":"교육대상자","note":"","confirm":""},
+{"m":"","c":"급여관리","od":"HR_PAYSTEP_INFO","oe":"호봉등록","id":"HHCPYST","ie":"호봉등록","note":"","confirm":""},
+{"m":"","c":"","od":"HR_PAYFIX_INFO","oe":"책정임금등록","id":"HPHFXPD","ie":"책정임금내역","note":"","confirm":""},
+{"m":"","c":"","od":"HR_PCALCITEM_MST","oe":"계산식등록(H)","id":"HPMPDFM","ie":"계산식","note":"","confirm":""},
+{"m":"","c":"","od":"HR_PCALCITEM_DTL","oe":"계산식등록(D)","id":"-","ie":"-","note":"계산식설정은 OmniEsol 계산식조건항목마스터(HR_PCALCCODE_MST) 기본 처리옵션으로 생성하며 직접 설정","confirm":""},
+{"m":"","c":"","od":"HR_PTITLE_INFO","oe":"급여타이틀설정정보","id":"HPHPYFQ","ie":"지급일자등록","note":"","confirm":""},
+{"m":"","c":"","od":"HR_PCALCPAY_MST","oe":"급여계산마스터","id":"HPOMPPD","ie":"급여지급","note":"이관 전 [급여기준등록] 설정 필요. 세무급여집계정보테이블에는 집계하지 않으므로 마감작업 필요","confirm":""},
+{"m":"","c":"","od":"HR_PCALCPAY_DTL","oe":"급여계산디테일","id":"HPOMPPD","ie":"급여지급","note":"","confirm":""},
+{"m":"","c":"","od":"","oe":"","id":"HPOMPDD","ie":"급여공제","note":"","confirm":""},
+{"m":"","c":"","od":"HR_PCALCTAX_INFO","oe":"급여과세정보","id":"HPOMNPY","ie":"급여집계","note":"OmniEsol에서 세무신고 대상인 귀속년월의 데이터는 세금계산 후 금액검증 필수","confirm":""},
+{"m":"","c":"","od":"HR_PCALCNOTAX_INFO","oe":"급여비과세정보","id":"HNOTAX","ie":"급여비과세","note":"OmniEsol에서 세무신고 대상인 귀속년월의 데이터는 세금계산 후 금액검증 필수","confirm":""},
+{"m":"","c":"퇴직관리","od":"HR_RPAYCALC_MST","oe":"퇴직마스터","id":"HRETIRE2013","ie":"퇴직금산정","note":"이관 전 [퇴직기준등록] 및 평균임금기간 설정 필수","confirm":""},
+{"m":"","c":"","od":"HR_RPAYCALC_DTL","oe":"퇴직금계산디테일","id":"HRETIRE1_D","ie":"퇴직금지급항목","note":"","confirm":""},
+{"m":"","c":"","od":"HR_RPAYPERIOD_MST","oe":"퇴직구간마스터","id":"HRPAYIT2","ie":"퇴직금급여상여지급내역","note":"","confirm":""},
+{"m":"","c":"","od":"HR_RPAYPERIOD_DTL","oe":"퇴직구간디테일","id":"HRPAYIT2","ie":"퇴직금급여상여지급내역","note":"","confirm":""},
+{"m":"","c":"","od":"HR_RPAYTAX_MST","oe":"퇴직소득세계산마스터","id":"HRETIRE2013","ie":"퇴직금산정","note":"OmniEsol에서 세무신고 대상인 귀속년월의 데이터는 세금계산 후 금액검증 필수","confirm":""},
+{"m":"","c":"","od":"HR_RPAYTAX_DTL","oe":"퇴직소득세계산디테일","id":"HRETIRE2013","ie":"퇴직금산정","note":"OmniEsol에서 세무신고 대상인 귀속년월의 데이터는 세금계산 후 금액검증 필수","confirm":""},
+{"m":"","c":"","od":"HR_RDIFFERPAY_INFO","oe":"과세이연정보","id":"HRETIRE3","ie":"과세이연정보","note":"","confirm":""},
+{"m":"","c":"","od":"HR_ROLDPLACE_INFO","oe":"퇴직금종전근무지정보","id":"HRETIRE2","ie":"종전근무지","note":"","confirm":""},
+{"m":"","c":"근태관리","od":"HR_OFFDAILY_MST","oe":"일근태마스터","id":"HTOPACR","ie":"개인별출결조정","note":"이관 전 [근태기준등록] 설정 필수","confirm":""},
+{"m":"","c":"","od":"HR_OFFDAILY_DTL","oe":"일근태디테일","id":"HTOPACR","ie":"개인별출결조정","note":"","confirm":""},
+{"m":"","c":"","od":"HR_OFFOUT_INFO","oe":"외출시간정보","id":"HTOPACR","ie":"개인별출결조정","note":"","confirm":""},
+{"m":"","c":"","od":"HR_OFFTOT_MST","oe":"월근태집계마스터","id":"HTOWTRT","ie":"근태결과집계","note":"","confirm":""},
+{"m":"","c":"","od":"HR_OFFTOT_DTL","oe":"월근태집계디테일","id":"HTOWTDR","ie":"근무일시간결과","note":"","confirm":""},
+{"m":"","c":"","od":"HR_OFFTOT_SDTL","oe":"월근태집계서브디테일","id":"HTOWTRT","ie":"근태결과집계","note":"","confirm":""}
+];
+
+    /* ── 마이그레이션 범위 테이블 렌더링 (모듈 아코디언) ── */
+    function renderScopeTable(product) {
+        const notice    = document.getElementById("scopeNotice");
+        const container = document.getElementById("scopeTableContainer");
+        let rawData = null;
+        if (product === "iU")    rawData = IU_SCOPE_DATA;
+        if (product === "iCUBE") rawData = ICUBE_SCOPE_DATA;
+
+        if (!rawData) {
+            notice.style.display = "block";
+            container.innerHTML = "";
+            return;
+        }
+        notice.style.display = "none";
+
+        /* 모듈/구분 빈값 carry-forward */
+        const data = rawData.map(function(r) { return Object.assign({}, r); });
+        let lastM = "", lastC = "";
+        data.forEach(function(row) {
+            if (row.m) lastM = row.m; else row.m = lastM;
+            if (row.c) lastC = row.c; else row.c = lastC;
+        });
+
+        /* 모듈별 1차 그룹화 */
+        const moduleMap = {};
+        const moduleOrder = [];
+        data.forEach(function(row) {
+            if (!moduleMap[row.m]) {
+                moduleMap[row.m] = [];
+                moduleOrder.push(row.m);
+            }
+            moduleMap[row.m].push(row);
+        });
+
+        const moduleLabel = { CI: '공통정보', MA: '기준정보', FI: '재무회계', HR: '인사급여' };
+        let globalGroupIdx = 0;
+        let html = '';
+
+        moduleOrder.forEach(function(mod) {
+            const modRows = moduleMap[mod];
+
+            /* 모듈 내 그룹(구분) 묶기 */
+            const groups = [];
+            let curGroup = null;
+            modRows.forEach(function(row) {
+                const key = row.m + "||" + row.c;
+                if (!curGroup || curGroup.key !== key) {
+                    curGroup = { key: key, module: row.m, cat: row.c, rows: [] };
+                    groups.push(curGroup);
+                }
+                curGroup.rows.push(row);
+            });
+
+            const totalRows = modRows.length;
+            const modTitle = moduleLabel[mod] || mod;
+
+            html += '<div class="scope-module-section">';
+            html += '<div class="scope-module-header" onclick="toggleModuleAccordion(this)">';
+            html += '<i class="fa-solid fa-chevron-right scope-module-arrow"></i>';
+            html += '<span class="scope-module-badge">' + mod + '</span>';
+            html += '<span class="scope-module-title">' + modTitle + '</span>';
+            html += '<span class="scope-module-count">' + groups.length + '개 구분 &nbsp;·&nbsp; ' + totalRows + '개 항목</span>';
+            html += '</div>';
+            html += '<div class="scope-module-content" style="display:none">';
+            html += '<div class="scope-wrap"><table class="scope-table"><thead><tr>';
+            html += '<th style="min-width:140px">OmniEsol 테이블명</th>';
+            html += '<th style="min-width:150px">OmniEsol 설명</th>';
+            html += '<th style="min-width:140px">IU 테이블명</th>';
+            html += '<th style="min-width:150px">IU 설명</th>';
+            html += '<th style="min-width:90px">마이그레이션<br>대상여부</th>';
+            html += '<th style="min-width:180px">비고</th>';
+            html += '</tr></thead><tbody>';
+
+            groups.forEach(function(group) {
+                const gi = globalGroupIdx++;
+                const label = group.module + (group.cat && group.cat !== group.module ? " &gt; " + group.cat : "");
+                html += '<tr class="scope-group-header">';
+                html += '<td colspan="4"><i class="fa-solid fa-layer-group"></i>' + label + '</td>';
+                html += '<td style="text-align:center">';
+                html += '<input type="checkbox" class="scope-group-chk" data-group="' + gi + '" onchange="toggleScopeGroup(this)" title="전체 선택/해제">';
+                html += '</td>';
+                html += '<td></td>';
+                html += '</tr>';
+
+                var rows = group.rows;
+                rows.forEach(function(row, ri) {
+                    if (row.od !== "") {
+                        var span = 1;
+                        for (var j = ri + 1; j < rows.length; j++) {
+                            if (rows[j].od === "") span++;
+                            else break;
+                        }
+                        row._odSpan = span;
+                        row._showOd = true;
+                    } else {
+                        row._showOd = false;
+                    }
+                });
+                rows.forEach(function(row) {
+                    html += "<tr>";
+                    if (row._showOd) {
+                        var rs = row._odSpan > 1 ? ' rowspan="' + row._odSpan + '"' : "";
+                        html += '<td class="td-code"' + rs + ">" + row.od + "</td>";
+                        html += "<td" + rs + ">" + row.oe + "</td>";
+                    }
+                    html += '<td class="td-code">' + row.id + "</td>";
+                    html += "<td>" + row.ie + "</td>";
+                    html += '<td style="text-align:center"><input type="checkbox" class="scope-chk" data-group="' + gi + '" data-od="' + row.od + '" data-oe="' + row.oe + '" onchange="syncGroupChk(this)"></td>';
+                    html += '<td class="td-note">' + (row.note ? row.note.replace(/\n/g, "<br>") : "") + "</td>";
+                    html += "</tr>";
+                });
+            });
+
+            html += '</tbody></table></div>';
+            html += '</div>';
+            html += '</div>';
+        });
+
+        container.innerHTML = html;
+    }
+
+    /* 그룹 헤더 체크박스 → 하위 전체 선택/해제 */
+    function toggleScopeGroup(el) {
+        const gi = el.getAttribute("data-group");
+        const container = document.getElementById("scopeTableContainer");
+        container.querySelectorAll('.scope-chk[data-group="' + gi + '"]').forEach(function(chk) {
+            chk.checked = el.checked;
+        });
+        checkCarryoverSection();
+    }
+
+    /* 개별 행 체크 변경 → 그룹 헤더 상태 동기화 */
+    function syncGroupChk(el) {
+        const gi = el.getAttribute("data-group");
+        const container = document.getElementById("scopeTableContainer");
+        const chks  = container.querySelectorAll('.scope-chk[data-group="' + gi + '"]');
+        const grpChk = container.querySelector('.scope-group-chk[data-group="' + gi + '"]');
+        if (!grpChk) return;
+        const total   = chks.length;
+        const checked = Array.from(chks).filter(function(c) { return c.checked; }).length;
+        grpChk.checked       = checked === total;
+        grpChk.indeterminate = checked > 0 && checked < total;
+        checkCarryoverSection();
+    }
+
+    /* 모듈 아코디언 토글 */
+    function toggleModuleAccordion(header) {
+        const content = header.nextElementSibling;
+        const isOpen  = header.classList.contains('open');
+        header.classList.toggle('open');
+        content.style.display = isOpen ? 'none' : 'block';
+    }
+
+    /* 초기이월 트리거 체크 → 추가정보 섹션 표시/숨김 + 필수 입력 연동 */
+    function checkCarryoverSection() {
+        const scopeCont = document.getElementById('scopeTableContainer');
+        const section   = document.getElementById('carryoverExtraSection');
+        if (!section || !scopeCont) return;
+
+        const initTriggers = [
+            { od: 'FI_DOCU_MST', oe: '초기이월집계(계정별잔액)' },
+            { od: 'FI_DOCU_MST', oe: '초기이월집계(관리항목별잔액)' }
+        ];
+        const banjeTriggers = [
+            { od: 'FI_DOCU_MST', oe: '반제잔액전표' }
+        ];
+        const isChecked = function(list) {
+            return list.some(function(t) {
+                const chk = scopeCont.querySelector(
+                    '.scope-chk[data-od="' + t.od + '"][data-oe="' + t.oe + '"]'
+                );
+                return chk && chk.checked;
+            });
+        };
+        const product         = document.getElementById('productSelect').value;
+        const initActive      = isChecked(initTriggers);
+        const banjeActive     = isChecked(banjeTriggers);
+        /* 과거반제전표 — iU 전용 트리거 */
+        const pastBanjeTriggers = [{ od: 'FI_DOCU_MST', oe: '과거반제전표마스터' }];
+        const pastBanjeActive = (product === 'iU') && isChecked(pastBanjeTriggers);
+
+        section.style.display = (initActive || banjeActive || pastBanjeActive) ? 'block' : 'none';
+
+        const initGroup = document.getElementById('carryoverInitGroup');
+        initGroup.style.display = initActive ? 'block' : 'none';
+        ['carryoverDept', 'carryoverWriter', 'carryoverApprover'].forEach(function(nm) {
+            const el = initGroup.querySelector('[name="' + nm + '"]');
+            if (el) el.required = initActive;
+        });
+
+        const banjeGroup = document.getElementById('carryoverBanjeGroup');
+        banjeGroup.style.display = banjeActive ? 'block' : 'none';
+        ['banjeDept', 'banjeWriter', 'banjeApprover'].forEach(function(nm) {
+            const el = banjeGroup.querySelector('[name="' + nm + '"]');
+            if (el) el.required = banjeActive;
+        });
+
+        const pastBanjeGroup = document.getElementById('carryoverPastBanjeGroup');
+        pastBanjeGroup.style.display = pastBanjeActive ? 'block' : 'none';
+        ['pastBanjeWriter', 'pastBanjeApprover'].forEach(function(nm) {
+            const el = pastBanjeGroup.querySelector('[name="' + nm + '"]');
+            if (el) el.required = pastBanjeActive;
+        });
+    }
+
+    /* ── 버전 상수 ── */
+    const CURRENT_VERSION   = '20260513100200';
+    /* GitHub API 사용 — 파트너사 전용 version_partner.json 참조 */
+    const VERSION_CHECK_URL = 'https://api.github.com/repos/DOUZONEDBA/mig_webform_repo/contents/version_partner.json';
+
+    /* 버전 체크 — 최신 버전이 있으면 자동 다운로드 + 차단 오버레이 표시 */
+    function checkLatestVersion() {
+        console.log('[VersionCheck] 시작. 현재 버전:', CURRENT_VERSION);
+        console.log('[VersionCheck] URL:', VERSION_CHECK_URL);
+        /* GitHub Contents API 기본 응답 → base64 디코딩 (커스텀 헤더 없음 → CORS 안전) */
+        fetch(VERSION_CHECK_URL, { cache: 'no-store' })
+            .then(function(res) {
+                console.log('[VersionCheck] HTTP 상태:', res.status);
+                return res.json();
+            })
+            .then(function(apiRes) {
+                console.log('[VersionCheck] API 응답 키:', Object.keys(apiRes));
+                if (!apiRes.content) {
+                    console.warn('[VersionCheck] content 없음. 응답:', JSON.stringify(apiRes).slice(0, 200));
+                    return;
+                }
+                /* base64 → Uint8Array → TextDecoder(UTF-8) → JSON.parse (한글 BOM 완전 처리) */
+                var b64     = apiRes.content.replace(/\n/g, '');
+                var binary  = atob(b64);
+                var bytes   = new Uint8Array(binary.length);
+                for (var i = 0; i < binary.length; i++) { bytes[i] = binary.charCodeAt(i); }
+                var decoded = new TextDecoder('utf-8').decode(bytes);
+                var data    = JSON.parse(decoded);
+                console.log('[VersionCheck] version.json 파싱 결과:', data);
+                console.log('[VersionCheck] 최신버전:', data.version, '> 현재버전:', CURRENT_VERSION, '→', data.version > CURRENT_VERSION);
+                if (data.version && data.version > CURRENT_VERSION) {
+                    const dlUrl = data.download || '';
+                    document.getElementById('modalCurVer').textContent = 'v.' + CURRENT_VERSION;
+                    document.getElementById('modalNewVer').textContent = 'v.' + data.version;
+                    /* note: 배열이면 리스트, 문자열이면 \n 분리, 없으면 숨김 */
+                    const noteEl   = document.getElementById('modalNote');
+                    const noteList = document.getElementById('modalNoteList');
+                    const noteData = data.note;
+                    if (noteData && (Array.isArray(noteData) ? noteData.length > 0 : noteData.trim())) {
+                        const items = Array.isArray(noteData)
+                            ? noteData
+                            : noteData.split('\n').filter(function(s) { return s.trim(); });
+                        noteList.innerHTML = items.map(function(item) {
+                            return '<li>' + item.trim() + '</li>';
+                        }).join('');
+                        noteEl.style.display = 'block';
+                    } else {
+                        noteEl.style.display = 'none';
+                    }
+                    document.getElementById('updateOverlay').classList.add('show');
+                    /* 자동 다운로드 — 파트너사 파일 다운로드 */
+                    var fileApiUrl = 'https://api.github.com/repos/DOUZONEDBA/mig_webform_repo/contents/OmniEsol%20%EC%9A%94%EC%B2%AD%EC%84%9C%20%ED%8C%8C%ED%8A%B8%EB%84%88%EC%82%AC.html';
+                    console.log('[VersionCheck] 파일 다운로드 시작:', fileApiUrl);
+                    fetch(fileApiUrl, { cache: 'no-store' })
+                        .then(function(r) {
+                            console.log('[VersionCheck] 파일 API 상태:', r.status);
+                            return r.json();
+                        })
+                        .then(function(fileRes) {
+                            if (!fileRes.content) {
+                                console.error('[VersionCheck] 파일 content 없음:', JSON.stringify(fileRes).slice(0,200));
+                                return;
+                            }
+                            var b64    = fileRes.content.replace(/\n/g, '');
+                            var bin    = atob(b64);
+                            var bytes  = new Uint8Array(bin.length);
+                            for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+                            var blob   = new Blob([bytes], { type: 'text/html; charset=utf-8' });
+                            var bUrl   = URL.createObjectURL(blob);
+                            var a      = document.createElement('a');
+                            a.href     = bUrl;
+                            a.download = 'OmniEsol 요청서 파트너사_v.' + data.version + '.html';
+                            document.body.appendChild(a); a.click(); document.body.removeChild(a);
+                            setTimeout(function() { URL.revokeObjectURL(bUrl); }, 3000);
+                            console.log('[VersionCheck] 다운로드 완료');
+                        })
+                        .catch(function(err) { console.error('[VersionCheck] 파일 다운로드 오류:', err); });
+                }
+            })
+            .catch(function(err) { console.error('[VersionCheck] 오류:', err); });
+    }
+
+    /* 초기 세팅 및 저장된 HTML 버그 수정(data-saved 속성 체크) */
+    window.onload = function() {
+        if (document.body.getAttribute('data-saved') === 'true') {
+            /* ZIP으로 저장된 파일 — 모든 제출 버튼 숨겨서 재제출 방지 */
+            ['btnSubmitBiz','btnSubmitOther','btnSubmitOtherTab3'].forEach(function(id) {
+                const el = document.getElementById(id);
+                if (el) el.style.display = 'none';
+            });
+            /* tab4 최종 제출 버튼 숨김 */
+            const tab4Btns = document.querySelectorAll('#tab4 .button-group button[onclick="submitForm()"]');
+            tab4Btns.forEach(function(btn) { btn.style.display = 'none'; });
+            return;
+        }
+
+        checkLatestVersion();
+
+        if (document.getElementById('asisDbContainer').children.length === 0) {
+            addDbBlock('asis');
+        }
+        if (document.getElementById('tobeDbContainer').children.length === 0) {
+            addDbBlock('tobe');
+        }
+        handleProductChange();
+        toggleNewRequest(); 
+    };
+
+    /* 탭 이동 통합 관리 및 유효성 검사 */
+    function goToTab(tabNum) {
+        const currentActiveTab = document.querySelector('.tab-content.active');
+        const currentTabNum = parseInt(currentActiveTab.id.replace('tab', ''));
+
+        if (tabNum > currentTabNum) {
+            const inputs = currentActiveTab.querySelectorAll('[required]');
+            for (let input of inputs) {
+                if (input.offsetParent === null) continue; /* 숨김 처리된 필드 건너뜀 */
+                if (!input.checkValidity()) {
+                    input.reportValidity();
+                    return;
+                }
+            }
+
+            /* tab1 → 다음 탭 이동 시 OmniEsol 회사코드 MIG 접두사 + 중복 통합 검증 */
+            if (currentTabNum === 1) {
+                const omniInputs = Array.from(
+                    document.querySelectorAll('input[name="omniCode[]"]')
+                ).filter(el => el.offsetParent !== null);
+
+                /* ① MIG 접두사 체크 */
+                for (let input of omniInputs) {
+                    if (!input.value.toUpperCase().startsWith('MIG')) {
+                        alert('OmniEsol 회사코드는 MIG 접두사로 시작해야 합니다.\n(예: MIGXXX)');
+                        input.focus();
+                        return;
+                    }
+                }
+
+                /* ② OmniEsol 회사코드 중복 체크 — iCUBE 제외 */
+                const _product = document.getElementById('productSelect').value;
+                if (_product !== 'iCUBE') {
+                    const omniValues = omniInputs.map(el => el.value.toUpperCase());
+                    const omniDupes  = omniValues.filter((v, i) => omniValues.indexOf(v) !== i);
+                    if (omniDupes.length > 0) {
+                        alert('OmniEsol 회사코드에 중복된 값이 있습니다.\n중복 코드: ' + [...new Set(omniDupes)].join(', ') + '\n각 법인의 코드를 다르게 입력해 주세요.');
+                        return;
+                    }
+                }
+
+                /* ③ Source 회사코드 중복 체크 */
+                const asisInputs = Array.from(
+                    document.querySelectorAll('input[name="asisCode[]"]')
+                ).filter(el => el.offsetParent !== null);
+                const asisValues = asisInputs.map(el => el.value.trim());
+                const asisDupes  = asisValues.filter((v, i) => v !== '' && asisValues.indexOf(v) !== i);
+                if (asisDupes.length > 0) {
+                    alert('Source 회사코드에 중복된 값이 있습니다.\n중복 코드: ' + [...new Set(asisDupes)].join(', ') + '\n각 법인의 코드를 다르게 입력해 주세요.');
+                    return;
+                }
+            }
+        }
+
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-step').forEach(s => s.classList.remove('active'));
+
+        document.getElementById('tab' + tabNum).classList.add('active');
+        document.getElementById('step' + tabNum).classList.add('active');
+
+        if (tabNum === 2) {
+            const product = document.getElementById('productSelect').value;
+            document.getElementById('asisTitle').innerHTML = product + ' 접속정보';
+        }
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    /* 차수 입력 영역 노출/숨김 (제외 처리 로직) */
+    function updateRoundSectionVisibility() {
+        const chkAcc = document.getElementById('chkAcc').checked;
+        const chkHr = document.getElementById('chkHr').checked;
+        const accSection = document.getElementById('accRoundSection');
+        const hrSection = document.getElementById('hrRoundSection');
+
+        if (!chkAcc && !chkHr) {
+            /* 둘 다 미체크 → 차수 섹션 숨김 및 초기화 */
+            accSection.style.display = 'none';
+            hrSection.style.display = 'none';
+            document.getElementById('accRoundSelect').value = '1';
+            document.getElementById('hrRoundSelect').value = '1';
+            document.getElementById('accRoundContainer').innerHTML = '';
+            document.getElementById('accRoundContainer').style.display = 'none';
+            document.getElementById('hrRoundContainer').innerHTML = '';
+            document.getElementById('hrRoundContainer').style.display = 'none';
+        } else if (chkAcc && !chkHr) {
+            accSection.style.display = 'block';
+            hrSection.style.display = 'none';
+        } else if (!chkAcc && chkHr) {
+            accSection.style.display = 'none';
+            hrSection.style.display = 'block';
+        } else {
+            accSection.style.display = 'block';
+            hrSection.style.display = 'block';
+        }
+    }
+
+    /* 신규 마이그레이션 여부 드롭다운 토글 처리 */
+    function toggleNewRequest() {
+        const isNew = document.getElementById('isNewRequest').value === 'Y';
+        const btnAccAdd = document.getElementById('btnAccAdd');
+        const btnHrAdd = document.getElementById('btnHrAdd');
+        const btnBizAdd = document.getElementById('btnBizAdd');
+        const accDropdownWrap = document.getElementById('accRoundDropdownWrap');
+        const hrDropdownWrap = document.getElementById('hrRoundDropdownWrap');
+        const bizDropdownWrap = document.getElementById('bizRoundDropdownWrap');
+        const accLabelOnly = document.getElementById('accRoundLabelOnly');
+        const hrLabelOnly = document.getElementById('hrRoundLabelOnly');
+        const bizLabelOnly = document.getElementById('bizRoundLabelOnly');
+
+        document.getElementById('accRoundSelect').value = '1';
+        document.getElementById('hrRoundSelect').value = '1';
+        document.getElementById('bizRoundSelect').value = '1';
+        document.getElementById('accRoundContainer').innerHTML = '';
+        document.getElementById('hrRoundContainer').innerHTML = '';
+        document.getElementById('bizRoundContainer').innerHTML = '';
+        document.getElementById('accRoundContainer').style.display = 'none';
+        document.getElementById('hrRoundContainer').style.display = 'none';
+        document.getElementById('bizRoundContainer').style.display = 'none';
+
+        if (isNew) {
+            btnAccAdd.style.display = 'flex';
+            btnHrAdd.style.display = 'flex';
+            if (btnBizAdd) btnBizAdd.style.display = 'flex';
+            accDropdownWrap.style.display = 'none';
+            hrDropdownWrap.style.display = 'none';
+            if (bizDropdownWrap) bizDropdownWrap.style.display = 'none';
+            accLabelOnly.style.display = 'flex';
+            hrLabelOnly.style.display = 'flex';
+            if (bizLabelOnly) bizLabelOnly.style.display = 'flex';
+        } else {
+            btnAccAdd.style.display = 'none';
+            btnHrAdd.style.display = 'none';
+            if (btnBizAdd) btnBizAdd.style.display = 'none';
+            accDropdownWrap.style.display = 'block';
+            hrDropdownWrap.style.display = 'block';
+            if (bizDropdownWrap) bizDropdownWrap.style.display = 'block';
+            accLabelOnly.style.display = 'none';
+            hrLabelOnly.style.display = 'none';
+            if (bizLabelOnly) bizLabelOnly.style.display = 'none';
+            
+            if (document.getElementById('chkAcc').checked) handleRoundSelectChange('acc');
+            if (document.getElementById('chkHr').checked) handleRoundSelectChange('hr');
+            const anyBizChecked = document.querySelectorAll('input[name="bizboxModule"]:checked').length > 0;
+            if (anyBizChecked) handleRoundSelectChange('biz');
+        }
+    }
+
+    /* 드롭다운 변경 시 동적 단일 ROW 처리 */
+    function handleRoundSelectChange(type) {
+        const isNew = document.getElementById('isNewRequest').value === 'Y';
+        const container = document.getElementById(type + 'RoundContainer');
+        
+        if (!isNew) {
+            const round = parseInt(document.getElementById(type + 'RoundSelect').value) || 1;
+            container.innerHTML = '';
+            container.style.display = 'block';
+            createRoundRow(container, type, round);
+        }
+    }
+
+    /* 모듈 및 담당자 선택 시 처리 */
+    function toggleManager(type) {
+        const isChecked = document.getElementById('chk' + type).checked;
+        const nameInput = document.getElementById('manager' + type + 'Name');
+        const contactInput = document.getElementById('manager' + type + 'Contact');
+        const isNew = document.getElementById('isNewRequest').value === 'Y';
+        
+        if (isChecked) {
+            nameInput.style.display = 'inline-block';
+            contactInput.style.display = 'inline-block';
+            nameInput.required = true;
+            contactInput.required = true;
+            
+            if (!isNew) handleRoundSelectChange(type.toLowerCase());
+        } else {
+            nameInput.style.display = 'none';
+            contactInput.style.display = 'none';
+            nameInput.required = false;
+            contactInput.required = false;
+            nameInput.value = '';
+            contactInput.value = '';
+            
+            document.getElementById(type.toLowerCase() + 'RoundSelect').value = '1';
+            const container = document.getElementById(type.toLowerCase() + 'RoundContainer');
+            container.innerHTML = '';
+            container.style.display = 'none';
+        }
+        updateRoundSectionVisibility();
+        if (type === 'Acc') handleAccFyMapping();
+    }
+
+    /* 회계기수 매핑 — iCUBE + 회계 체크 시에만 활성화/필수첨부/체크 해제불가 */
+    function handleAccFyMapping() {
+        const product  = document.getElementById('productSelect').value;
+        const chkAcc   = document.getElementById('chkAcc');
+        const container = document.getElementById('mapAccFyContainer');
+        if (!container) return;
+        const checkbox  = container.querySelector('input[type="checkbox"]');
+        const active = (product === 'iCUBE') && chkAcc && chkAcc.checked;
+        container.style.display = active ? 'flex' : 'none';
+        if (active) {
+            checkbox.checked  = true;
+            checkbox.disabled = true;   /* 체크 해제 불가 */
+            toggleMappingFile(checkbox, 'file-accfy', 'badge-accfy');
+        } else {
+            checkbox.checked  = false;
+            checkbox.disabled = false;
+            toggleMappingFile(checkbox, 'file-accfy', 'badge-accfy');
+        }
+    }
+
+    /* BizboxA 모듈 체크박스 토글 처리 */
+    function toggleBizboxModule() {
+        const anyChecked = document.querySelectorAll('input[name="bizboxModule"]:checked').length > 0;
+        const bizRoundSection = document.getElementById('bizRoundSection');
+        const isNew = document.getElementById('isNewRequest').value === 'Y';
+        const bizContainer = document.getElementById('bizRoundContainer');
+        const isElecApproval = !!(document.querySelector('input[name="bizboxModule"][value="전자결재"]') &&
+                                  document.querySelector('input[name="bizboxModule"][value="전자결재"]').checked);
+        /* 전자결재 체크 여부에 따라 기간처리 안내 문구 표시 */
+        const elecNotice = document.getElementById('elecPeriodNotice');
+        if (elecNotice) elecNotice.style.display = isElecApproval ? 'block' : 'none';
+
+        if (anyChecked) {
+            bizRoundSection.style.display = 'block';
+            /* 전자결재 체크 여부 변경 시 차수 행 형태가 달라지므로 컨테이너 초기화 후 재렌더 */
+            bizContainer.innerHTML = '';
+            bizContainer.style.display = 'none';
+            if (!isNew) handleRoundSelectChange('biz');
+        } else {
+            bizRoundSection.style.display = 'none';
+            document.getElementById('bizRoundSelect').value = '1';
+            bizContainer.innerHTML = '';
+            bizContainer.style.display = 'none';
+        }
+        /* 담당자/연락처 영역 show/hide */
+        const bizManagerArea    = document.getElementById('bizManagerArea');
+        const managerBizName    = document.getElementById('managerBizName');
+        const managerBizContact = document.getElementById('managerBizContact');
+        if (anyChecked) {
+            bizManagerArea.style.display    = 'flex';
+            managerBizName.required         = true;
+            managerBizContact.required      = true;
+        } else {
+            bizManagerArea.style.display    = 'none';
+            managerBizName.required         = false;
+            managerBizContact.required      = false;
+            managerBizName.value            = '';
+            managerBizContact.value         = '';
+        }
+    }
+
+    /* 신규요청 상태: 추가버튼 클릭 시 +1 차수 누적 생성 */
+    function addRounds(type) {
+        const container = document.getElementById(type + 'RoundContainer');
+        container.style.display = 'block';
+        
+        const currentRows = container.querySelectorAll('.round-row').length;
+        const nextRound = currentRows + 1;
+
+        createRoundRow(container, type, nextRound);
+    }
+
+    /* 단일 Row 생성 함수 */
+    function createRoundRow(container, type, roundNum) {
+        const row = document.createElement('div');
+        row.className = 'round-row';
+
+        const now   = new Date();
+        const cy    = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day   = String(now.getDate()).padStart(2, '0');
+        const todayStr    = `${cy}-${month}-${day}`;
+        const minReqDate  = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 7);
+        const minReqDateStr = minReqDate.getFullYear() + '-'
+            + String(minReqDate.getMonth() + 1).padStart(2, '0') + '-'
+            + String(minReqDate.getDate()).padStart(2, '0');
+
+        const isBizbox = document.getElementById('productSelect').value === 'BizboxA';
+
+        if (isBizbox) {
+            const isElecApproval = !!(document.querySelector('input[name="bizboxModule"][value="전자결재"]') &&
+                                      document.querySelector('input[name="bizboxModule"][value="전자결재"]').checked);
+            let yearOpts = '<option value="">년도 선택</option>';
+            for (let y = cy - 15; y <= cy + 1; y++) yearOpts += `<option value="${y}">${y}년</option>`;
+
+            if (isElecApproval) {
+                /* 전자결재: 요청일 + 시작년 + 종료년 */
+                row.innerHTML = `
+                    <div class="round-badge"><span class="round-num">${roundNum}</span>차</div>
+                    <div><label>마이그레이션 요청일</label><input type="date" name="${type}_reqDate_${roundNum}" min="${minReqDateStr}" max="9999-12-31" onblur="checkReqDate(this)" required></div>
+                    <div>
+                        <label>시작년(From_Dt)</label>
+                        <select name="${type}_fromYear_${roundNum}" data-role="from-year" style="width:100%;" required onchange="checkDateRange(this)">${yearOpts}</select>
+                    </div>
+                    <div>
+                        <label>종료년(To_Dt)</label>
+                        <select name="${type}_toYear_${roundNum}" data-role="to-year" style="width:100%;" required onchange="checkDateRange(this)">${yearOpts}</select>
+                    </div>
+                    <button type="button" class="btn-remove-round" onclick="removeRoundRow(this, '${type}')" title="차수 삭제"><i class="fa-solid fa-trash"></i></button>
+                `;
+            } else {
+                /* 게시판/문서: 요청일만 */
+                row.innerHTML = `
+                    <div class="round-badge"><span class="round-num">${roundNum}</span>차</div>
+                    <div><label>마이그레이션 요청일</label><input type="date" name="${type}_reqDate_${roundNum}" min="${minReqDateStr}" max="9999-12-31" onblur="checkReqDate(this)" required></div>
+                    <button type="button" class="btn-remove-round" onclick="removeRoundRow(this, '${type}')" title="차수 삭제"><i class="fa-solid fa-trash"></i></button>
+                `;
+            }
+        } else {
+            row.innerHTML = `
+                <div class="round-badge"><span class="round-num">${roundNum}</span>차</div>
+                <div><label>마이그레이션 요청일</label><input type="date" name="${type}_reqDate_${roundNum}" min="${minReqDateStr}" max="9999-12-31" onblur="checkReqDate(this)" required></div>
+                <div><label>시작일(From_Dt)</label><input type="date" name="${type}_fromDate_${roundNum}" max="9999-12-31" data-role="from-date" onblur="checkDateRange(this)" required></div>
+                <div><label>종료일(To_Dt)</label><input type="date" name="${type}_toDate_${roundNum}" max="9999-12-31" data-role="to-date" onblur="checkDateRange(this)" required></div>
+                <button type="button" class="btn-remove-round" onclick="removeRoundRow(this, '${type}')" title="차수 삭제"><i class="fa-solid fa-trash"></i></button>
+            `;
+        }
+
+        container.appendChild(row);
+        updateRoundDeleteButtons(type);
+    }
+
+    /* 차수 개별 삭제 기능 및 순번 재정렬 */
+    function removeRoundRow(btn, type) {
+        const container = document.getElementById(type + 'RoundContainer');
+        btn.closest('.round-row').remove();
+
+        const rows = container.querySelectorAll('.round-row');
+        rows.forEach((row, index) => {
+            const num = index + 1;
+            row.querySelector('.round-num').textContent = num;
+            const setName = (role, suffix) => {
+                const el = row.querySelector('[data-role="' + role + '"]');
+                if (el) el.name = type + '_' + suffix + '_' + num;
+            };
+            /* 공통 */
+            const req = row.querySelector('input[name*="_reqDate_"]');
+            if (req) req.name = type + '_reqDate_' + num;
+            /* date input 방식 */
+            setName('from-date',  'fromDate');
+            setName('to-date',    'toDate');
+            /* BizboxA select 방식 (년도만) */
+            setName('from-year', 'fromYear');
+            setName('to-year',   'toYear');
+        });
+
+        if (rows.length === 0) container.style.display = 'none';
+    }
+
+    /* 신규요청 해제 (단일 차수)인 경우 삭제버튼 숨김 처리 */
+    function updateRoundDeleteButtons(type) {
+        const isNew = document.getElementById('isNewRequest').value === 'Y';
+        const container = document.getElementById(type + 'RoundContainer');
+        const btns = container.querySelectorAll('.btn-remove-round');
+        
+        btns.forEach(btn => {
+            if (isNew) {
+                btn.style.display = 'flex';
+            } else {
+                btn.style.display = 'none';
+            }
+        });
+    }
+
+    /* 날짜 유효성 검사 (종료일 < 시작일 방지) */
+    function checkDateRange(el) {
+        const row = el.closest('.round-row');
+
+        /* BizboxA: 년도 select 방식 */
+        const fromYear = row.querySelector('[data-role="from-year"]');
+        const toYear   = row.querySelector('[data-role="to-year"]');
+        if (fromYear && toYear) {
+            if (!fromYear.value || !toYear.value) return;
+            if (parseInt(toYear.value) < parseInt(fromYear.value)) {
+                alert("종료 기간은 시작 기간보다 과거일 수 없습니다.");
+                toYear.value = '';
+            }
+            return;
+        }
+
+        /* 일반 date input 방식 */
+        const fromInput = row.querySelector('[data-role="from-date"]');
+        const toInput   = row.querySelector('[data-role="to-date"]');
+        if (fromInput && toInput && fromInput.value && toInput.value) {
+            if (toInput.value < fromInput.value) {
+                alert("종료 기간은 시작 기간보다 과거일 수 없습니다.");
+                toInput.value = '';
+            }
+        }
+    }
+
+    /* 마이그레이션 요청일 — 오늘로부터 7일 이후만 허용 */
+    function checkReqDate(input) {
+        if (!input.value) return;
+        const now     = new Date();
+        const minDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 7);
+        const minStr  = minDate.getFullYear() + '-'
+            + String(minDate.getMonth() + 1).padStart(2, '0') + '-'
+            + String(minDate.getDate()).padStart(2, '0');
+        if (input.value < minStr) {
+            alert('마이그레이션 요청일은 오늘로부터 일주일 이후 일자만 입력 가능합니다.');
+            input.value = '';
+        }
+    }
+
+    /* DB 정보 다중 생성 함수 */
+    function addDbBlock(type) {
+        const container = document.getElementById(type + 'DbContainer');
+        const blockCount = container.querySelectorAll('.db-block').length + 1;
+        const labelText = type === 'asis' ? 'Source' : 'OmniEsol';
+        
+        const block = document.createElement('div');
+        block.className = `db-block ${type}-db-block`;
+        
+        let html = `
+            <div class="db-block-title">
+                <span>${labelText} DB 접속정보 <span class="db-idx">${blockCount}</span></span>
+            </div>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>위치 <span style="color:red">*</span></label>
+                    <select name="${type}Location[]" onchange="toggleAmaranthField(this)" required>
+                        <option value="고객사">고객사</option>
+                        <option value="더존IDC">더존IDC</option>
+                        <option value="기타">기타</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>서버구분 <span style="color:red">*</span></label>
+                    <select name="${type}ServerType[]" required>
+                        <option value="운영">운영</option>
+                        <option value="개발">개발</option>
+                    </select>
+                </div>
+            </div>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>DBMS <span style="color:red">*</span></label>
+                    <select name="${type}Dbms[]" class="${type}-dbms-select" required>
+                        ${type === 'asis' ? '<option value="MSSQL" selected>MSSQL</option><option value="ORACLE">ORACLE</option>' : '<option value="ORACLE">ORACLE</option><option value="MARIA">MARIA</option><option value="TIBERO">TIBERO</option>'}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>DATABASE (Service Name/SID) <span style="color:red">*</span></label>
+                    <input type="text" name="${type}DbName[]" class="${type}-dbname-input" placeholder="DB명을 입력하세요" required>
+                </div>
+            </div>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>IP <span style="color:red">*</span></label>
+                    <input type="text" name="${type}Ip[]" placeholder="예: 192.168.0.1" maxlength="15" oninput="formatIpInput(this)" onblur="validateIpInput(this)" required>
+                </div>
+                <div class="form-group">
+                    <label>PORT <span style="color:red">*</span></label>
+                    <input type="text" name="${type}Port[]" placeholder="예: 1521" maxlength="5" inputmode="numeric" oninput="formatPortInput(this)" required>
+                </div>
+            </div>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>ID <span style="color:red">*</span></label>
+                    <input type="text" name="${type}Id[]" placeholder="DB 아이디" required>
+                </div>
+                <div class="form-group">
+                    <label>PASSWORD <span style="color:red">*</span></label>
+                    <div style="position: relative;">
+                        <input type="password" name="${type}Pw[]" placeholder="DB 비밀번호" required style="padding-right: 40px;">
+                        <i class="fa-solid fa-eye pw-eye" onclick="togglePwIcon(this)" title="비밀번호 보기"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="grid-2" style="margin-top: 10px;">
+                <div class="form-group">
+                    <label>방화벽 오픈여부 <span style="color:red">*</span></label>
+                    <select name="${type}FirewallOpen[]" required>
+                        <option value="">선택하세요</option>
+                        <option value="Y">Y</option>
+                        <option value="N">N</option>
+                    </select>
+                </div>
+                <div class="form-group amaranth-field" style="display:none;">
+                    <label>Amaranth10 방화벽 기안 품의번호 <span style="color:red">*</span></label>
+                    <input type="text" name="${type}AmaranthNo[]" placeholder="품의번호를 입력하세요">
+                </div>
+            </div>
+            <div class="form-group" style="margin-top: 10px;">
+                <label>비고</label>
+                <textarea name="${type}DbRemarks[]" class="auto-resize" rows="2" placeholder="특이사항을 입력해주세요." oninput="autoResizeTextarea(this)"></textarea>
+            </div>
+        `;
+        block.innerHTML = html;
+        container.appendChild(block);
+        
+        updateDbIndexes(type);
+        handleProductChange(); 
+    }
+
+    /* 위치 = 더존IDC 선택 시 Amaranth10 품의번호 필드 활성화 */
+    function toggleAmaranthField(selectEl) {
+        const block = selectEl.closest('.db-block');
+        const amaranthField = block.querySelector('.amaranth-field');
+        if (!amaranthField) return;
+        const input = amaranthField.querySelector('input');
+        if (selectEl.value === '더존IDC') {
+            amaranthField.style.display = 'block';
+            if (input) input.required = true;
+        } else {
+            amaranthField.style.display = 'none';
+            if (input) { input.required = false; input.value = ''; }
+        }
+    }
+
+    function updateDbIndexes(type) {
+        const container = document.getElementById(type + 'DbContainer');
+        const blocks = container.querySelectorAll('.db-block');
+        blocks.forEach((block, index) => {
+            block.querySelector('.db-idx').textContent = index + 1;
+            
+            let btn = block.querySelector('.btn-remove-db');
+            if (index === 0) {
+                if (btn) btn.remove();
+            } else {
+                if (!btn) {
+                    const titleDiv = block.querySelector('.db-block-title');
+                    const delBtn = document.createElement('button');
+                    delBtn.type = 'button';
+                    delBtn.className = 'btn-remove-db';
+                    delBtn.innerHTML = '<i class="fa-solid fa-trash"></i> 삭제';
+                    delBtn.onclick = function() { this.closest('.db-block').remove(); updateDbIndexes(type); };
+                    titleDiv.appendChild(delBtn);
+                }
+            }
+        });
+    }
+
+    /* 전역 변수 - 누적 첨부파일 저장을 위한 DataTransfer 객체 */
+    let selectedFilesDataTransfer = new DataTransfer();
+
+    function displaySelectedFiles(input) {
+        if (input.files && input.files.length > 0) {
+            Array.from(input.files).forEach(file => {
+                const isDuplicate = Array.from(selectedFilesDataTransfer.files).some(f => f.name === file.name && f.size === file.size);
+                if (!isDuplicate) selectedFilesDataTransfer.items.add(file);
+            });
+        }
+        input.files = selectedFilesDataTransfer.files;
+        renderAttachmentList();
+    }
+
+    function renderAttachmentList() {
+        const listContainer = document.getElementById('attachmentList');
+        listContainer.innerHTML = '';
+        Array.from(selectedFilesDataTransfer.files).forEach((file, index) => {
+            const fileBadge = document.createElement('div');
+            fileBadge.style.cssText = 'background: #EEF2FF; color: var(--primary-color); padding: 6px 12px; border-radius: 6px; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 8px; border: 1px solid #C7D2FE;';
+            fileBadge.innerHTML = `
+                <i class="fa-solid fa-file-lines"></i> 
+                <span style="max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${file.name}</span>
+                <i class="fa-solid fa-xmark" style="cursor: pointer; padding: 2px; color: #9CA3AF;" title="삭제" 
+                   onclick="removeFile(${index})" onmouseover="this.style.color='#EF4444'" onmouseout="this.style.color='#9CA3AF'"></i>
+            `;
+            listContainer.appendChild(fileBadge);
+        });
+    }
+
+    function removeFile(indexToRemove) {
+        const newDt = new DataTransfer();
+        const files = selectedFilesDataTransfer.files;
+        for (let i = 0; i < files.length; i++) {
+            if (i !== indexToRemove) newDt.items.add(files[i]);
+        }
+        selectedFilesDataTransfer = newDt;
+        document.getElementById('mainAttachment').files = selectedFilesDataTransfer.files;
+        renderAttachmentList();
+    }
+
+    /* 매핑 파일 단일 첨부 UI — active 클래스로 활성/비활성 전환 (레이아웃 고정) */
+    function toggleMappingFile(checkbox, fileInputId, badgeContainerId) {
+        const wrap = document.getElementById('wrap-' + fileInputId);
+        const fileInput = document.getElementById(fileInputId);
+        if (checkbox.checked) {
+            wrap.classList.add('active');
+            fileInput.required = true;
+        } else {
+            wrap.classList.remove('active');
+            fileInput.required = false;
+            clearSingleMappingFile(fileInputId, badgeContainerId);
+        }
+    }
+
+    function displaySingleMappingFile(input, badgeContainerId) {
+        const container = document.getElementById(badgeContainerId);
+        container.innerHTML = '';
+        if (input.files && input.files.length > 0) {
+            const file = input.files[0];
+
+            /* B방안: hidden input에 파일명 저장 → HTML clone에 포함되어 저장 */
+            const hiddenKey = 'hidden-' + input.id;
+            let hidden = document.getElementById(hiddenKey);
+            if (!hidden) {
+                hidden = document.createElement('input');
+                hidden.type = 'hidden';
+                hidden.id   = hiddenKey;
+                hidden.name = 'mappingFileName_' + input.id.replace('file-', '');
+                input.parentNode.insertBefore(hidden, input.nextSibling);
+            }
+            hidden.value = file.name;
+
+            const badge = document.createElement('div');
+            badge.style.cssText = 'background: #EEF2FF; color: var(--primary-color); padding: 4px 10px; border-radius: 6px; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px; border: 1px solid #C7D2FE; display: inline-flex;';
+            badge.innerHTML = `
+                <i class="fa-solid fa-file-lines"></i>
+                <span style="max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${file.name}</span>
+                <i class="fa-solid fa-xmark" style="cursor: pointer; padding: 2px; color: #9CA3AF;" title="삭제"
+                   onclick="clearSingleMappingFile('${input.id}', '${badgeContainerId}')" onmouseover="this.style.color='#EF4444'" onmouseout="this.style.color='#9CA3AF'"></i>
+            `;
+            container.appendChild(badge);
+            container.style.display = 'flex';
+        } else {
+            container.style.display = 'none';
+        }
+    }
+
+    function clearSingleMappingFile(inputId, badgeContainerId) {
+        document.getElementById(inputId).value = '';
+        /* B방안: hidden input 초기화 */
+        const hidden = document.getElementById('hidden-' + inputId);
+        if (hidden) hidden.value = '';
+        const container = document.getElementById(badgeContainerId);
+        container.innerHTML = '';
+        container.style.display = 'none';
+    }
+
+    /* 제품 변경 핸들러 */
+    function handleProductChange(fromEncCheckbox = false) {
+        const productSelect = document.getElementById('productSelect');
+        const otherProductInput = document.getElementById('otherProductInput');
+        const encCreditCard = document.getElementById('encCreditCard');
+        
+        const mapAccNumContainer = document.getElementById('mapAccNumContainer');
+        const mapCreditCardContainer = document.getElementById('mapCreditCardContainer');
+        const mapAccNum = document.getElementById('mapAccNum');
+        const mapCreditCard = document.getElementById('mapCreditCard');
+        const warningMsg = document.getElementById('ccWarningMsg');
+        
+        const product = productSelect.value;
+        const otherProductSection = document.getElementById('otherProductSection');
+        if (product === '타시스템') {
+            otherProductSection.style.display = 'block';
+            otherProductInput.required = true;
+        } else {
+            otherProductSection.style.display = 'none';
+            otherProductInput.required = false;
+            otherProductInput.value = '';
+        }
+
+        /* BizboxA 선택 시: 모듈 체크박스 전환 + 마이그레이션 대상법인 숨김 */
+        const corpSection = document.getElementById('corpSection');
+        const defaultModules = document.getElementById('defaultModules');
+        const bizboxModules = document.getElementById('bizboxModules');
+        const moduleDesc = document.getElementById('moduleDesc');
+        if (product === 'BizboxA') {
+            defaultModules.style.display = 'none';
+            bizboxModules.style.display = 'block';
+            moduleDesc.style.display = 'none';
+            corpSection.style.display = 'none';
+            const chkAcc = document.getElementById('chkAcc');
+            const chkHr = document.getElementById('chkHr');
+            if (chkAcc.checked) { chkAcc.checked = false; toggleManager('Acc'); }
+            if (chkHr.checked) { chkHr.checked = false; toggleManager('Hr'); }
+            document.getElementById('accRoundSection').style.display = 'none';
+            document.getElementById('hrRoundSection').style.display = 'none';
+            document.getElementById('securitySection').style.display = 'none';
+            document.getElementById('mappingSection').style.display = 'none';
+            /* 탭 02, 03, 04 비활성화 + 제출 버튼 전환 */
+            document.getElementById('step2').classList.add('disabled');
+            document.getElementById('step3').classList.add('disabled');
+            document.getElementById('step4').classList.add('disabled');
+            document.getElementById('btnNextTab2').style.display = 'none';
+            document.getElementById('btnSubmitBiz').style.display = 'flex';
+            const gcmsSection = document.getElementById('gcmsSection');
+            gcmsSection.style.display = 'block';
+            gcmsSection.querySelector('input').required = true;
+        } else {
+            defaultModules.style.display = 'flex';
+            bizboxModules.style.display = 'none';
+            moduleDesc.style.display = 'block';
+            corpSection.style.display = 'block';
+            document.getElementById('bizRoundSection').style.display = 'none';
+            document.getElementById('bizRoundSelect').value = '1';
+            document.getElementById('bizRoundContainer').innerHTML = '';
+            document.getElementById('bizRoundContainer').style.display = 'none';
+            document.getElementById('securitySection').style.display = 'block';
+            document.getElementById('mappingSection').style.display = 'block';
+            /* 탭 02 활성화 복원 + 탭1 다음 버튼 복원 */
+            document.getElementById('step2').classList.remove('disabled');
+            document.getElementById('btnNextTab2').style.display = '';
+            document.getElementById('btnSubmitBiz').style.display = 'none';
+            const gcmsEl = document.getElementById('gcmsSection');
+            gcmsEl.style.display = 'none';
+            const gcmsInp = gcmsEl.querySelector('input');
+            gcmsInp.required = false;
+            gcmsInp.value = '';
+            const bizMgrArea = document.getElementById('bizManagerArea');
+            if (bizMgrArea) {
+                bizMgrArea.style.display = 'none';
+                const mn = document.getElementById('managerBizName');
+                const mc = document.getElementById('managerBizContact');
+                if (mn) { mn.required = false; mn.value = ''; }
+                if (mc) { mc.required = false; mc.value = ''; }
+            }
+
+            if (product === '타시스템') {
+                /* 탭 03 활성화, 탭 04 비활성 + tab3 보안/매핑 숨기고 제출 버튼 전환 */
+                document.getElementById('step3').classList.remove('disabled');
+                document.getElementById('step4').classList.add('disabled');
+                document.getElementById('btnNextTab3').style.display = '';
+                document.getElementById('btnSubmitOther').style.display = 'none';
+                document.getElementById('securitySection').style.display = 'none';
+                document.getElementById('mappingSection').style.display = 'none';
+                document.getElementById('btnNextTab4').style.display = 'none';
+                document.getElementById('btnSubmitOtherTab3').style.display = 'flex';
+            } else {
+                /* 탭 03, 04 활성화 복원 + tab3 버튼/섹션 복원 */
+                document.getElementById('step3').classList.remove('disabled');
+                document.getElementById('step4').classList.remove('disabled');
+                document.getElementById('btnNextTab3').style.display = '';
+                document.getElementById('btnSubmitOther').style.display = 'none';
+                document.getElementById('btnNextTab4').style.display = '';
+                document.getElementById('btnSubmitOtherTab3').style.display = 'none';
+            }
+        }
+
+        /* 마이그레이션 범위 테이블 갱신 */
+        renderScopeTable(product);
+
+        const asisDbmsList = document.querySelectorAll('.asis-dbms-select');
+        const asisDbNameList = document.querySelectorAll('.asis-dbname-input');
+
+        if (product === 'iCUBE') {
+            asisDbmsList.forEach(sel => { selectOption(sel, 'MSSQL'); sel.classList.add('readonly-select'); });
+            mapAccNumContainer.style.display = 'none';
+            mapCreditCardContainer.style.display = 'none';
+            mapAccNum.checked = false;
+            mapCreditCard.checked = false;
+            toggleMappingFile(mapAccNum, 'file-accnum', 'badge-accnum');
+            toggleMappingFile(mapCreditCard, 'file-card', 'badge-card');
+        } else {
+            asisDbmsList.forEach(sel => sel.classList.remove('readonly-select'));
+            mapAccNumContainer.style.display = 'flex';
+            mapCreditCardContainer.style.display = 'flex';
+        }
+
+        /* 관리항목 행 — iU / iCUBE 선택 시에만 표시 */
+        const mapMgmtItemContainer = document.getElementById('mapMgmtItemContainer');
+        const mapMgmtChk = mapMgmtItemContainer ? mapMgmtItemContainer.querySelector('input[type="checkbox"]') : null;
+        if (product === 'iU' || product === 'iCUBE') {
+            mapMgmtItemContainer.style.display = 'flex';
+        } else {
+            mapMgmtItemContainer.style.display = 'none';
+            if (mapMgmtChk) {
+                mapMgmtChk.checked = false;
+                toggleMappingFile(mapMgmtChk, 'file-mgmt', 'badge-mgmt');
+            }
+        }
+
+        asisDbNameList.forEach(input => {
+            if (product === 'iU') input.placeholder = "DB명을 입력하세요(NEOE)";
+            else if (product === 'iCUBE') input.placeholder = "DB명을 입력하세요(DZICUBE)";
+            else input.placeholder = "DB명을 입력하세요";
+        });
+
+        if (product === 'iU' && encCreditCard.checked) {
+            warningMsg.style.display = 'block';
+            mapCreditCard.checked = true;
+            mapCreditCard.disabled = true;
+            toggleMappingFile(mapCreditCard, 'file-card', 'badge-card'); 
+        } else {
+            warningMsg.style.display = 'none';
+            mapCreditCard.disabled = false;
+            if (fromEncCheckbox === true && !encCreditCard.checked) {
+                mapCreditCard.checked = false;
+                toggleMappingFile(mapCreditCard, 'file-card', 'badge-card');
+            }
+        }
+        handleAccFyMapping();
+    }
+
+    function selectOption(selectEl, val) {
+        Array.from(selectEl.options).forEach(opt => {
+            if (opt.value === val) opt.selected = true;
+        });
+    }
+
+    function addCorpRow() {
+        const tbody = document.getElementById('corpTableBody');
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td><input type="text" name="corpName[]" placeholder="법인명 입력" required></td>
+            <td><input type="text" name="asisCode[]" placeholder="예: 1000" required></td>
+            <td><input type="text" name="omniCode[]" value="MIG" placeholder="예: MIGXXX" maxlength="7" onkeydown="enforceOmniCodeKey(this,event)" oninput="enforceOmniCodePrefix(this)" required></td>
+            <td style="text-align: center; padding: 8px;">
+                <button type="button" class="btn-delete" onclick="this.closest('tr').remove()"><i class="fa-solid fa-trash"></i> 삭제</button>
+            </td>
+        `;
+        tbody.appendChild(row);
+    }
+
+    /* OmniEsol 회사코드 — keydown: MIG 접두사 영역 백스페이스/딜리트 차단 */
+    function enforceOmniCodeKey(input, event) {
+        var start = input.selectionStart;
+        var end   = input.selectionEnd;
+        /* Backspace: 커서가 3 이하면 MIG 문자 삭제 → 차단 */
+        if (event.key === 'Backspace') {
+            if (start === end && start <= 3) { event.preventDefault(); return; }
+            if (start < 3) { event.preventDefault(); return; }
+        }
+        /* Delete: 커서가 3 미만이면 MIG 문자 삭제 → 차단 */
+        if (event.key === 'Delete') {
+            if (start === end && start < 3) { event.preventDefault(); return; }
+            if (start < 3) { event.preventDefault(); return; }
+        }
+    }
+
+    /* OmniEsol 회사코드 — oninput: MIG 접두사 강제 유지 (부분 삭제 방어) */
+    function enforceOmniCodePrefix(input) {
+        var val = input.value.toUpperCase();
+        if (!val.startsWith('MIG')) {
+            /* 앞에 남아있는 부분 MIG(M, MI 등)를 제거 후 전체 MIG 복원 */
+            var i = 0;
+            while (i < val.length && i < 3 && 'MIG'[i] === val[i]) i++;
+            val = 'MIG' + val.slice(i);
+        }
+        if (val.length > 7) val = val.slice(0, 7);
+        input.value = val;
+        /* 커서를 MIG 뒤(position 3)로 이동 — MIG 앞 클릭 후 타이핑 방지 */
+        if (input.selectionStart < 3) {
+            input.setSelectionRange(3, 3);
+        }
+    }
+
+    /* OmniEsol 회사코드 — blur 시 MIG 접두사 검증 + 중복 체크 */
+    function validateOmniCodePrefix(input) {
+        const val = input.value.toUpperCase();
+
+        /* ① MIG 접두사 체크 */
+        if (!val.startsWith('MIG')) {
+            alert('OmniEsol 회사코드는 MIG 접두사로 시작해야 합니다.\n(예: MIGXXX)');
+            input.value = 'MIG';
+            input.focus();
+            return;
+        }
+
+        /* ② 중복 체크 — 같은 테이블 내 다른 행의 omniCode와 비교 */
+        const allInputs = document.querySelectorAll('input[name="omniCode[]"]');
+        const isDuplicate = Array.from(allInputs).some(function(other) {
+            return other !== input && other.value.toUpperCase() === val;
+        });
+        if (isDuplicate) {
+            alert('OmniEsol 회사코드 "' + val + '" 가 중복됩니다.\n다른 코드를 입력해 주세요.');
+            input.value = 'MIG';
+            input.focus();
+        }
+    }
+
+    /* 비고 textarea 자동 높이 조절 */
+    function autoResizeTextarea(el) {
+        el.style.height = 'auto';
+        el.style.height = el.scrollHeight + 'px';
+    }
+
+    /* IP 주소 자동 포맷 — 숫자/점만 허용, 옥텟 0~255 제한 */
+    function formatIpInput(input) {
+        let val = input.value.replace(/[^0-9.]/g, '');
+        val = val.replace(/\.{2,}/g, '.');
+        const parts = val.split('.');
+        const limited = parts.slice(0, 4).map(function(p) {
+            if (p === '') return '';
+            const num = parseInt(p, 10);
+            if (isNaN(num)) return '';
+            return String(Math.min(num, 255));
+        });
+        input.value = limited.join('.');
+    }
+
+    /* IP 주소 유효성 검사 — x.x.x.x 형식 + 각 자리 0~255 */
+    function validateIpInput(input) {
+        if (!input.value) return;
+        const m = input.value.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
+        if (!m || [m[1],m[2],m[3],m[4]].some(function(v){ return parseInt(v) > 255; })) {
+            alert('올바른 IP 주소 형식으로 입력해 주세요.\n(예: 192.168.0.1  /  각 자리 0~255)');
+            input.value = '';
+        }
+    }
+
+    /* PORT — 숫자만 허용, 1~65535 범위 제한 */
+    function formatPortInput(input) {
+        input.value = input.value.replace(/\D/g, '');
+        if (input.value.length > 5) input.value = input.value.slice(0, 5);
+        if (input.value && parseInt(input.value) > 65535) input.value = '65535';
+    }
+
+    /* 전화번호 자동 포맷 — 숫자만 허용, 하이픈 자동 삽입 */
+    function formatPhoneNumber(input) {
+        let val = input.value.replace(/\D/g, '');
+        if (val.length > 11) val = val.slice(0, 11);
+        let result = '';
+        if (val.startsWith('02')) {
+            /* 서울 지역번호 (2자리) */
+            if      (val.length <= 2)  result = val;
+            else if (val.length <= 5)  result = val.slice(0,2) + '-' + val.slice(2);
+            else if (val.length <= 9)  result = val.slice(0,2) + '-' + val.slice(2,5) + '-' + val.slice(5);
+            else                       result = val.slice(0,2) + '-' + val.slice(2,6) + '-' + val.slice(6);
+        } else {
+            /* 010/011 등 휴대폰, 031~ 지역번호 (3자리) */
+            if      (val.length <= 3)  result = val;
+            else if (val.length <= 6)  result = val.slice(0,3) + '-' + val.slice(3);
+            else if (val.length <= 10) result = val.slice(0,3) + '-' + val.slice(3,6) + '-' + val.slice(6);
+            else                       result = val.slice(0,3) + '-' + val.slice(3,7) + '-' + val.slice(7);
+        }
+        input.value = result;
+    }
+
+    function togglePwIcon(iconEl) {
+        const input = iconEl.previousElementSibling;
+        if (input.type === "password") {
+            input.type = "text";
+            iconEl.classList.remove('fa-eye');
+            iconEl.classList.add('fa-eye-slash');
+        } else {
+            input.type = "password";
+            iconEl.classList.remove('fa-eye-slash');
+            iconEl.classList.add('fa-eye');
+        }
+    }
+
+    /* 최종 제출 (저장 시 HTML 버그 수정 적용) */
+    function submitForm() {
+        const form = document.getElementById('migrationForm');
+        // 현재 활성화된 탭 유효성만 검사하여 숨겨진 탭 렌더링 에러 회피
+        const currentActiveTab = document.querySelector('.tab-content.active');
+        const inputs = currentActiveTab.querySelectorAll('[required]');
+        for (let input of inputs) {
+            if (input.offsetParent === null) continue; /* 숨김 필드 스킵 */
+            if (!input.checkValidity()) {
+                input.reportValidity();
+                return; 
+            }
+        }
+
+        const zip = new JSZip();
+        
+        const compName = document.getElementsByName('companyName')[0].value || '업체명';
+        let productName = document.getElementById('productSelect').value;
+        if (productName === '타시스템') {
+            productName = document.getElementById('otherProductInput').value || '타시스템';
+        }
+        
+        const now = new Date();
+        const yyyy = now.getFullYear();
+        const mm = String(now.getMonth() + 1).padStart(2, '0');
+        const dd = String(now.getDate()).padStart(2, '0');
+        const hh = String(now.getHours()).padStart(2, '0');
+        const mi = String(now.getMinutes()).padStart(2, '0');
+        const timeStr = `${yyyy}${mm}${dd}${hh}${mi}`;
+
+        // BizboxA 시작/종료년 → YYYY-01-01 / YYYY-12-31 형식 hidden input 주입 (DB DATE 형식)
+        const injected = [];
+        function injectDateHidden(yearRole, dateSuffix, nameFrom, nameTo) {
+            document.querySelectorAll('[data-role="' + yearRole + '"]').forEach(function(yearEl) {
+                if (!yearEl.value) return;
+                const h = document.createElement('input');
+                h.type  = 'hidden';
+                h.name  = yearEl.name.replace(nameFrom, nameTo);
+                h.value = yearEl.value + '-' + dateSuffix;
+                form.appendChild(h);
+                injected.push(h);
+            });
+        }
+        injectDateHidden('from-year', '01-01', 'fromYear', 'fromDt'); /* 시작년 → YYYY-01-01 */
+        injectDateHidden('to-year',   '12-31', 'toYear',   'toDt');   /* 종료년 → YYYY-12-31 */
+
+        // 1. 현재 입력값이 적용된 HTML 생성
+        const clone = document.documentElement.cloneNode(true);
+        const originalInputs = document.querySelectorAll('input, select, textarea');
+        const clonedInputs = clone.querySelectorAll('input, select, textarea');
+
+        originalInputs.forEach((el, i) => {
+            if (el.type === 'checkbox' || el.type === 'radio') {
+                if (el.checked) clonedInputs[i].setAttribute('checked', '');
+                else clonedInputs[i].removeAttribute('checked');
+            } else if (el.tagName === 'SELECT') {
+                const options = clonedInputs[i].querySelectorAll('option');
+                options.forEach((opt) => {
+                    if (opt.value === el.value) opt.setAttribute('selected', '');
+                    else opt.removeAttribute('selected');
+                });
+            } else if (el.type !== 'file') {
+                clonedInputs[i].setAttribute('value', el.value);
+                if (el.tagName === 'TEXTAREA') clonedInputs[i].textContent = el.value;
+            }
+        });
+
+        // SECURITY FIX: 비밀번호 표시 상태(type="text")로 저장되지 않도록 강제 복원
+        clone.querySelectorAll('i.pw-eye').forEach(function(icon) {
+            const input = icon.previousElementSibling;
+            if (input) {
+                input.setAttribute('type', 'password');   // 표시 여부 무관하게 항상 password로 저장
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');              // 아이콘도 초기 상태로 복원
+            }
+        });
+
+        // BUG FIX: 저장된 HTML에서 file input required 제거 (브라우저 보안상 복원 불가 → 유효성 오류 방지)
+        clone.querySelectorAll('input[type="file"]').forEach(function(el) {
+            el.removeAttribute('required');
+            el.disabled = true; // 저장본에서 재첨부 시도 방지
+        });
+
+        // BUG FIX: HTML 문서의 body를 찾아서 data-saved 속성 주입
+        const cloneBody = clone.querySelector('body');
+        if (cloneBody) cloneBody.setAttribute('data-saved', 'true');
+
+        const htmlContent = "<!DOCTYPE html>\n" + clone.outerHTML;
+        zip.file(`[${compName}]${productName}_마이그레이션_요청서.html`, htmlContent);
+        injected.forEach(function(h) { h.remove(); }); // DOM 원상복구
+
+        /* A+C방안: 매핑 항목 레이블 정의 */
+        const mappingLabels = {
+            'file-accfy':  '회계기수',
+            'file-vendor': '거래처',
+            'file-account':'계정코드',
+            'file-emp':    '사원',
+            'file-dept':   '부서',
+            'file-mgmt':   '관리항목',
+            'file-accnum': '계좌번호',
+            'file-card':   '신용카드'
+        };
+
+        /* C방안: mapping_index.json 생성 */
+        const mappingIndex = {};
+        Object.entries(mappingLabels).forEach(([id, label]) => {
+            const el = document.getElementById(id);
+            mappingIndex[label] = (el && el.files && el.files.length > 0)
+                ? `[${label}]${el.files[0].name}` : null;
+        });
+        /* 기타 비고 및 첨부파일 (다중 파일) 추가 */
+        const mainAttachEl = document.getElementById('mainAttachment');
+        if (mainAttachEl && mainAttachEl.files && mainAttachEl.files.length > 0) {
+            mappingIndex['기타첨부파일'] = Array.from(mainAttachEl.files).map(f => f.name);
+        } else {
+            mappingIndex['기타첨부파일'] = null;
+        }
+        zip.file('mapping_index.json', JSON.stringify(mappingIndex, null, 2));
+
+        /* A방안: 파일명에 매핑 항목 prefix 추가 후 ZIP 저장 */
+        const fileInputs = document.querySelectorAll('input[type="file"]');
+        fileInputs.forEach(input => {
+            if (input.files && input.files.length > 0) {
+                const label = mappingLabels[input.id];
+                Array.from(input.files).forEach(file => {
+                    const saveName = label ? `[${label}]${file.name}` : file.name;
+                    zip.file(saveName, file);
+                });
+            }
+        });
+
+        zip.generateAsync({ type: "blob" }).then(function(content) {
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(content);
+            a.download = `[${compName}]${productName}_마이그레이션_제출자료_${timeStr}.zip`;
+            a.click();
+            alert("제출이 완료되었습니다!\n HTML 요청서와 첨부파일들이 ZIP으로 압축되어 다운로드됩니다. \n 해당 파일을 암호화하시기 바랍니다. ");
+        });
+    }
+</script>
+
+</body>
+</html>
