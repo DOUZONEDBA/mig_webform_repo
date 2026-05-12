@@ -1,7 +1,8 @@
 ﻿{
-  "version": "20260513093400",
+  "version": "20260513094400",
   "download": "https://raw.githubusercontent.com/DOUZONEDBA/mig_webform_repo/main/OmniEsol%20%EC%9A%94%EC%B2%AD%EC%84%9C.html",
   "note": [
-    "패스워드 암호화 표기 수정"
+    "패스워드 암호화 표기 수정",
+	"비고란 크기 수동조절 잠금 및 텍스트 사이즈에 따라 자동조절 기능 추가"
   ]
 }

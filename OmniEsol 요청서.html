@@ -129,6 +129,7 @@
         }
         
         .readonly-select { pointer-events: none; background-color: #E5E7EB; color: #6B7280; }
+        .auto-resize { resize: none; overflow: hidden; min-height: 46px; }
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         .flex-row { display: flex; align-items: center; gap: 12px; }
 
@@ -1225,7 +1226,7 @@ const ICUBE_SCOPE_DATA = [
     }
 
     /* ── 버전 상수 ── */
-    const CURRENT_VERSION   = '20260513093400';
+    const CURRENT_VERSION   = '20260513094400';
     /* GitHub API 사용 — CDN 캐시 완전 우회, 항상 최신 파일 반환 */
     const VERSION_CHECK_URL = 'https://api.github.com/repos/DOUZONEDBA/mig_webform_repo/contents/version.json';
 
@@ -1820,7 +1821,7 @@ const ICUBE_SCOPE_DATA = [
             </div>
             <div class="form-group" style="margin-top: 10px;">
                 <label>비고</label>
-                <textarea name="${type}DbRemarks[]" rows="2" placeholder="특이사항을 입력해주세요."></textarea>
+                <textarea name="${type}DbRemarks[]" class="auto-resize" rows="2" placeholder="특이사항을 입력해주세요." oninput="autoResizeTextarea(this)"></textarea>
             </div>
         `;
         block.innerHTML = html;
@@ -2196,6 +2197,12 @@ const ICUBE_SCOPE_DATA = [
             input.value = 'MIG';
             input.focus();
         }
+    }
+
+    /* 비고 textarea 자동 높이 조절 */
+    function autoResizeTextarea(el) {
+        el.style.height = 'auto';
+        el.style.height = el.scrollHeight + 'px';
     }
 
     /* IP 주소 자동 포맷 — 숫자/점만 허용, 옥텟 0~255 제한 */
