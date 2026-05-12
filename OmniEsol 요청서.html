@@ -372,7 +372,7 @@
                         <tr>
                             <td><input type="text" name="corpName[]" placeholder="법인명 입력" required></td>
                             <td><input type="text" name="asisCode[]" placeholder="예: 1000" required></td>
-                            <td><input type="text" name="omniCode[]" value="MIG" placeholder="예: MIGXXX" maxlength="7" oninput="enforceOmniCodePrefix(this)" required></td>
+                            <td><input type="text" name="omniCode[]" value="MIG" placeholder="예: MIGXXX" maxlength="7" onkeydown="enforceOmniCodeKey(this,event)" oninput="enforceOmniCodePrefix(this)" required></td>
                             <td style="text-align: center; color: var(--text-muted); font-size: 13px;">기본 법인</td>
                         </tr>
                     </tbody>
@@ -679,7 +679,7 @@
     </form>
     
     <div style="text-align: center; margin-top: 40px; margin-bottom: 20px; color: #9CA3AF; font-size: 12px; font-weight: 500; letter-spacing: 1px;">
-        DBACell OmniEsol Migration Request Form v.20260514
+        DBACell OmniEsol Migration Request Form v.20260513
     </div>
 </div>
 
@@ -1225,7 +1225,7 @@ const ICUBE_SCOPE_DATA = [
     }
 
     /* ── 버전 상수 ── */
-    const CURRENT_VERSION   = '20260514';
+    const CURRENT_VERSION   = '20260513090000';
     /* GitHub API 사용 — CDN 캐시 완전 우회, 항상 최신 파일 반환 */
     const VERSION_CHECK_URL = 'https://api.github.com/repos/DOUZONEDBA/mig_webform_repo/contents/version.json';
 
@@ -1362,12 +1362,15 @@ const ICUBE_SCOPE_DATA = [
                     }
                 }
 
-                /* ② OmniEsol 회사코드 중복 체크 */
-                const omniValues = omniInputs.map(el => el.value.toUpperCase());
-                const omniDupes  = omniValues.filter((v, i) => omniValues.indexOf(v) !== i);
-                if (omniDupes.length > 0) {
-                    alert('OmniEsol 회사코드에 중복된 값이 있습니다.\n중복 코드: ' + [...new Set(omniDupes)].join(', ') + '\n각 법인의 코드를 다르게 입력해 주세요.');
-                    return;
+                /* ② OmniEsol 회사코드 중복 체크 — iCUBE 제외 */
+                const _product = document.getElementById('productSelect').value;
+                if (_product !== 'iCUBE') {
+                    const omniValues = omniInputs.map(el => el.value.toUpperCase());
+                    const omniDupes  = omniValues.filter((v, i) => omniValues.indexOf(v) !== i);
+                    if (omniDupes.length > 0) {
+                        alert('OmniEsol 회사코드에 중복된 값이 있습니다.\n중복 코드: ' + [...new Set(omniDupes)].join(', ') + '\n각 법인의 코드를 다르게 입력해 주세요.');
+                        return;
+                    }
                 }
 
                 /* ③ Source 회사코드 중복 체크 */
@@ -2130,7 +2133,7 @@ const ICUBE_SCOPE_DATA = [
         row.innerHTML = `
             <td><input type="text" name="corpName[]" placeholder="법인명 입력" required></td>
             <td><input type="text" name="asisCode[]" placeholder="예: 1000" required></td>
-            <td><input type="text" name="omniCode[]" value="MIG" placeholder="예: MIGXXX" maxlength="7" oninput="enforceOmniCodePrefix(this)" required></td>
+            <td><input type="text" name="omniCode[]" value="MIG" placeholder="예: MIGXXX" maxlength="7" onkeydown="enforceOmniCodeKey(this,event)" oninput="enforceOmniCodePrefix(this)" required></td>
             <td style="text-align: center; padding: 8px;">
                 <button type="button" class="btn-delete" onclick="this.closest('tr').remove()"><i class="fa-solid fa-trash"></i> 삭제</button>
             </td>
@@ -2138,14 +2141,37 @@ const ICUBE_SCOPE_DATA = [
         tbody.appendChild(row);
     }
 
-    /* OmniEsol 회사코드 — MIG 접두사 강제 유지 */
+    /* OmniEsol 회사코드 — keydown: MIG 접두사 영역 백스페이스/딜리트 차단 */
+    function enforceOmniCodeKey(input, event) {
+        var start = input.selectionStart;
+        var end   = input.selectionEnd;
+        /* Backspace: 커서가 3 이하면 MIG 문자 삭제 → 차단 */
+        if (event.key === 'Backspace') {
+            if (start === end && start <= 3) { event.preventDefault(); return; }
+            if (start < 3) { event.preventDefault(); return; }
+        }
+        /* Delete: 커서가 3 미만이면 MIG 문자 삭제 → 차단 */
+        if (event.key === 'Delete') {
+            if (start === end && start < 3) { event.preventDefault(); return; }
+            if (start < 3) { event.preventDefault(); return; }
+        }
+    }
+
+    /* OmniEsol 회사코드 — oninput: MIG 접두사 강제 유지 (부분 삭제 방어) */
     function enforceOmniCodePrefix(input) {
-        let val = input.value.toUpperCase();
+        var val = input.value.toUpperCase();
         if (!val.startsWith('MIG')) {
-            val = 'MIG' + val;
+            /* 앞에 남아있는 부분 MIG(M, MI 등)를 제거 후 전체 MIG 복원 */
+            var i = 0;
+            while (i < val.length && i < 3 && 'MIG'[i] === val[i]) i++;
+            val = 'MIG' + val.slice(i);
         }
         if (val.length > 7) val = val.slice(0, 7);
         input.value = val;
+        /* 커서를 MIG 뒤(position 3)로 이동 — MIG 앞 클릭 후 타이핑 방지 */
+        if (input.selectionStart < 3) {
+            input.setSelectionRange(3, 3);
+        }
     }
 
     /* OmniEsol 회사코드 — blur 시 MIG 접두사 검증 + 중복 체크 */
@@ -2301,6 +2327,16 @@ const ICUBE_SCOPE_DATA = [
             } else if (el.type !== 'file') {
                 clonedInputs[i].setAttribute('value', el.value);
                 if (el.tagName === 'TEXTAREA') clonedInputs[i].textContent = el.value;
+            }
+        });
+
+        // SECURITY FIX: 비밀번호 표시 상태(type="text")로 저장되지 않도록 강제 복원
+        clone.querySelectorAll('i.pw-eye').forEach(function(icon) {
+            const input = icon.previousElementSibling;
+            if (input) {
+                input.setAttribute('type', 'password');   // 표시 여부 무관하게 항상 password로 저장
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');              // 아이콘도 초기 상태로 복원
             }
         });
 
