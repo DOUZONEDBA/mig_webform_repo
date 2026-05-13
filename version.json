@@ -1,9 +1,10 @@
 {
-  "version": "20260513141043",
+  "version": "20260513144430",
   "download": "https://raw.githubusercontent.com/DOUZONEDBA/mig_webform_repo/main/OmniEsol%20%EC%9A%94%EC%B2%AD%EC%84%9C.html",
   "note": [
-    "패스워드 암호화 표기 수정",
-    "비고란 크기 수동조절 잠금 및 텍스트 사이즈에 따라 자동조절 기능 추가",
-    "신규 요청서 다운로드시 년월일을 파일명에 포함하여 다운로드"
+    "매핑정의서 양식 다운로드 기능 추가",
+	"매핑정의서 업로드시 체크로직 추가",
+	"사업자등록번호 입력란 추가",
+	"ZIP 제출 시 매핑정의서 네이밍 규칙 변경"
   ]
 }

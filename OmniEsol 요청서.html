@@ -132,6 +132,7 @@
         .readonly-select { pointer-events: none; background-color: #E5E7EB; color: #6B7280; }
         .auto-resize { resize: none; overflow: hidden; min-height: 46px; }
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
         .flex-row { display: flex; align-items: center; gap: 12px; }
 
         .checkbox-group { display: flex; gap: 20px; flex-wrap: wrap; padding: 5px 0; }
@@ -294,28 +295,34 @@
                         <input type="text" name="companyName" placeholder="업체명을 입력하세요" required>
                     </div>
                     <div class="form-group">
-                        <label>오픈 예정일 <span style="color:red">*</span></label>
-                        <input type="date" name="openDate" max="9999-12-31" required>
+                        <label>사업자 등록번호 <span style="color:red">*</span></label>
+                        <input type="text" name="bizRegNo" id="bizRegNo" placeholder="000-00-00000"
+                               maxlength="12" inputmode="numeric"
+                               oninput="formatBizRegNo(this)" onblur="validateBizRegNo(this)" required>
                     </div>
                 </div>
                 <div class="grid-2">
                     <div class="form-group">
-                        <label>제품명 <span style="color:red">*</span></label>
-                        <div class="flex-row">
-                            <select name="productName" id="productSelect" style="width: 200px;" onchange="handleProductChange(false)" required>
+                        <label>오픈 예정일 <span style="color:red">*</span></label>
+                        <input type="date" name="openDate" max="9999-12-31" required>
+                    </div>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div class="form-group">
+                            <label>제품명 <span style="color:red">*</span></label>
+                            <select name="productName" id="productSelect" onchange="handleProductChange(false)" required>
                                 <option value="iU" selected>iU</option>
                                 <option value="iCUBE">iCUBE</option>
                                 <option value="BizboxA">BizboxA</option>
                                 <option value="타시스템">타시스템</option>
                             </select>
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <label>신규 마이그레이션 여부 <span style="color:red">*</span></label>
-                        <select id="isNewRequest" name="isNewRequest" onchange="toggleNewRequest()" required style="width: 200px;">
-                            <option value="N" selected>N</option>
-                            <option value="Y">Y</option>
-                        </select>
+                        <div class="form-group">
+                            <label>신규 마이그레이션 여부 <span style="color:red">*</span></label>
+                            <select id="isNewRequest" name="isNewRequest" onchange="toggleNewRequest()" required>
+                                <option value="N" selected>N</option>
+                                <option value="Y">Y</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
 
@@ -737,7 +744,7 @@
     </form>
     
     <div style="text-align: center; margin-top: 40px; margin-bottom: 20px; color: #9CA3AF; font-size: 12px; font-weight: 500; letter-spacing: 1px;">
-        DBACell OmniEsol Migration Request Form v.20260513141043
+        DBACell OmniEsol Migration Request Form v.20260513144430
     </div>
 </div>
 
@@ -1283,7 +1290,7 @@ const ICUBE_SCOPE_DATA = [
     }
 
     /* ── 버전 상수 ── */
-    const CURRENT_VERSION   = '20260513141043';
+    const CURRENT_VERSION   = '20260513144430';
     /* GitHub API 사용 — CDN 캐시 완전 우회, 항상 최신 파일 반환 */
     const VERSION_CHECK_URL = 'https://api.github.com/repos/DOUZONEDBA/mig_webform_repo/contents/version.json';
 
@@ -1362,6 +1369,23 @@ const ICUBE_SCOPE_DATA = [
                 }
             })
             .catch(function(err) { console.error('[VersionCheck] 오류:', err); });
+    }
+
+    /* 사업자등록번호 자동 포맷 — 숫자만 허용, 000-00-00000 형식 */
+    function formatBizRegNo(input) {
+        var digits = input.value.replace(/\D/g, '').slice(0, 10);
+        if (digits.length <= 3)       input.value = digits;
+        else if (digits.length <= 5)  input.value = digits.slice(0,3) + '-' + digits.slice(3);
+        else                          input.value = digits.slice(0,3) + '-' + digits.slice(3,5) + '-' + digits.slice(5);
+    }
+
+    /* 사업자등록번호 유효성 검사 — 000-00-00000 형식 완성 여부 */
+    function validateBizRegNo(input) {
+        if (!input.value) return;
+        if (!/^\d{3}-\d{2}-\d{5}$/.test(input.value)) {
+            alert('사업자등록번호 형식이 올바르지 않습니다.\n(예: 000-00-00000)');
+            input.focus();
+        }
     }
 
     /* 우클릭 컨텍스트 메뉴 비활성화 */
@@ -2581,12 +2605,16 @@ const ICUBE_SCOPE_DATA = [
             'file-card':   '신용카드'
         };
 
+        /* 매핑 파일 저장명 생성: [업체명_년월일]원본파일명 */
+        const dateStr = `${yyyy}${mm}${dd}`;
+        const mappingPrefix = `[${compName}_${dateStr}]`;
+
         /* C방안: mapping_index.json 생성 */
         const mappingIndex = {};
         Object.entries(mappingLabels).forEach(([id, label]) => {
             const el = document.getElementById(id);
             mappingIndex[label] = (el && el.files && el.files.length > 0)
-                ? `[${label}]${el.files[0].name}` : null;
+                ? mappingPrefix + el.files[0].name : null;
         });
         /* 기타 비고 및 첨부파일 (다중 파일) 추가 */
         const mainAttachEl = document.getElementById('mainAttachment');
@@ -2597,13 +2625,13 @@ const ICUBE_SCOPE_DATA = [
         }
         zip.file('mapping_index.json', JSON.stringify(mappingIndex, null, 2));
 
-        /* A방안: 파일명에 매핑 항목 prefix 추가 후 ZIP 저장 */
+        /* A방안: [업체명_제출일시] prefix + 원본파일명 그대로 ZIP 저장 */
         const fileInputs = document.querySelectorAll('input[type="file"]');
         fileInputs.forEach(input => {
             if (input.files && input.files.length > 0) {
                 const label = mappingLabels[input.id];
                 Array.from(input.files).forEach(file => {
-                    const saveName = label ? `[${label}]${file.name}` : file.name;
+                    const saveName = label ? mappingPrefix + file.name : file.name;
                     zip.file(saveName, file);
                 });
             }
