@@ -1203,6 +1203,9 @@ const ICUBE_SCOPE_DATA = [
         });
 
         container.innerHTML = html;
+
+        /* 제품 변경 시 체크 초기화 → 추가정보 섹션도 함께 리셋 */
+        checkCarryoverSection();
     }
 
     /* 그룹 헤더 체크박스 → 하위 전체 선택/해제 */
