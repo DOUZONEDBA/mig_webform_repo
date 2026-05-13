@@ -1,0 +1,13 @@
+{
+  "last_updated": "20260513111600",
+  "files": {
+    "emp_code_map":   { "version": "20260513", "filename": "[공통] 1. 사원코드매핑정의서.xlsx",                        "updated": "20260513111600" },
+    "vendor_code_map":{ "version": "20260513", "filename": "[공통] 2. 거래처코드매핑정의서.xlsx",                       "updated": "20260513111600" },
+    "dept_code_map":  { "version": "20260513", "filename": "[공통] 3. 부서코드매핑정의서.xlsx",                        "updated": "20260513111600" },
+    "acct_code_map":  { "version": "20260513", "filename": "[공통] 4. 계정코드매핑정의서.xlsx",                        "updated": "20260513111600" },
+    "mgmt_code_map":  { "version": "20260513", "filename": "[공통] 5. 관리항목매핑정의서.xlsx",                        "updated": "20260513111600" },
+    "accfy_code_map": { "version": "20260513", "filename": "[iCUBE] 6. 회계기수매핑정의서.xlsx",                      "updated": "20260513111600" },
+    "off_code_map":   { "version": "20260513", "filename": "[iCUBE] 7. 근태코드매핑정의서.xlsx",                      "updated": "20260513111600" },
+    "etc_code_map":   { "version": "20260513", "filename": "[ERPiU] 8. 그 외 코드매핑정의서(신용카드, 계좌번호).xlsx", "updated": "20260513111600" }
+  }
+}
