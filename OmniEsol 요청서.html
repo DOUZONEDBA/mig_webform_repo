@@ -206,6 +206,19 @@
         .scope-module-count { margin-left: auto; font-size: 13px; color: var(--text-muted); font-weight: 500; }
         .scope-module-content { border-top: 1px solid var(--border-color); }
 
+        /* ── 매핑 양식 다운로드 버튼 ── */
+        .btn-dl-template {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 8px 12px; font-size: 14px; font-weight: 600;
+            color: var(--primary-color); background: #EEF2FF;
+            border: 1px solid #C7D2FE; border-radius: 8px;
+            cursor: pointer; transition: all 0.15s; white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .btn-dl-template:hover  { background: var(--primary-color); color: #fff; border-color: var(--primary-color); }
+        .btn-dl-template:disabled { opacity: 0.55; cursor: not-allowed; }
+        .mapping-label-group { display: flex; align-items: center; gap: 10px; flex: 1; padding-right: 20px; }
+
         /* ── 버전 업데이트 차단 오버레이 ── */
         .update-overlay {
             display: none; position: fixed; inset: 0;
@@ -531,7 +544,12 @@
                             </div>
                         </div>
                         <div class="mapping-row">
-                            <label class="checkbox-item"><input type="checkbox" name="codeMapping" value="거래처" onchange="toggleMappingFile(this, 'file-vendor', 'badge-vendor')"> 거래처</label>
+                            <div class="mapping-label-group">
+                                <label class="checkbox-item"><input type="checkbox" name="codeMapping" value="거래처" onchange="toggleMappingFile(this, 'file-vendor', 'badge-vendor')"> 거래처</label>
+                                <button type="button" id="btn-dl-vendor_code_map" class="btn-dl-template" onclick="downloadMappingTemplate('vendor_code_map')" title="거래처 코드 매핑 양식 다운로드">
+                                    <i class="fa-solid fa-download"></i> 양식 다운로드
+                                </button>
+                            </div>
                             <div id="wrap-file-vendor" class="mapping-file-wrap">
                                 <input type="file" id="file-vendor" name="mappingFile_vendor" class="mapping-file" title="거래처 매핑 파일 첨부" onchange="displaySingleMappingFile(this, 'badge-vendor')">
                                 <div id="badge-vendor" style="display: none;"></div>
@@ -2197,6 +2215,65 @@ const ICUBE_SCOPE_DATA = [
             input.value = 'MIG';
             input.focus();
         }
+    }
+
+    /* ── 코드 매핑 양식 GitHub 다운로드 ── */
+    var CODE_MAPPING_VERSION_API = 'https://api.github.com/repos/DOUZONEDBA/mig_webform_repo/contents/code_mapping/code_mapping_version.json';
+
+    function downloadMappingTemplate(key) {
+        var btnId = 'btn-dl-' + key;
+        var btn = document.getElementById(btnId);
+        if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 다운로드 중...'; }
+
+        fetch(CODE_MAPPING_VERSION_API, { cache: 'no-store' })
+            .then(function(r) {
+                if (!r.ok) throw new Error('버전 정보를 불러올 수 없습니다. (HTTP ' + r.status + ')');
+                return r.json();
+            })
+            .then(function(res) {
+                if (!res.content) throw new Error('버전 파일 내용을 읽을 수 없습니다.');
+                /* atob()는 Latin-1 바이너리로 디코딩 → UTF-8 한글 깨짐
+                   TextDecoder로 UTF-8 바이트를 올바른 유니코드 문자열로 변환 */
+                var b64   = res.content.replace(/\n/g, '');
+                var bin   = atob(b64);
+                var bytes = new Uint8Array(bin.length);
+                for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+                var jsonStr = new TextDecoder('utf-8').decode(bytes);
+                var json = JSON.parse(jsonStr);
+                var fileInfo = json.files[key];
+                if (!fileInfo) throw new Error('키 [' + key + '] 에 해당하는 파일 정보가 없습니다.');
+                var rawUrl = 'https://raw.githubusercontent.com/DOUZONEDBA/mig_webform_repo/main/code_mapping/'
+                           + encodeURIComponent(fileInfo.filename);
+                /* 버전 정보를 확장자 앞에 삽입: 파일명_v버전.xlsx */
+                var origName = fileInfo.filename;
+                var dotIdx   = origName.lastIndexOf('.');
+                var saveFilename = dotIdx !== -1
+                    ? origName.slice(0, dotIdx) + '_v' + fileInfo.version + origName.slice(dotIdx)
+                    : origName + '_v' + fileInfo.version;
+                /* Blob 다운로드 — OneDrive/Office Online 열림 방지, 강제 저장 */
+                fetch(rawUrl)
+                    .then(function(r) {
+                        if (!r.ok) throw new Error('파일을 가져올 수 없습니다. (HTTP ' + r.status + ')');
+                        return r.blob();
+                    })
+                    .then(function(blob) {
+                        var blobUrl = URL.createObjectURL(blob);
+                        var a = document.createElement('a');
+                        a.href = blobUrl;
+                        a.download = saveFilename;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        setTimeout(function() { URL.revokeObjectURL(blobUrl); }, 3000);
+                    })
+                    .catch(function(err) { throw err; });
+            })
+            .catch(function(err) {
+                alert('양식 다운로드 실패\n' + err.message);
+            })
+            .finally(function() {
+                if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-download"></i> 양식 다운로드'; }
+            });
     }
 
     /* 비고 textarea 자동 높이 조절 */
