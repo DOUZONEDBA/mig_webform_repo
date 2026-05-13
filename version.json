@@ -1,10 +1,7 @@
 {
-  "version": "20260513144430",
+  "version": "20260513180000",
   "download": "https://raw.githubusercontent.com/DOUZONEDBA/mig_webform_repo/main/OmniEsol%20%EC%9A%94%EC%B2%AD%EC%84%9C.html",
   "note": [
-    "매핑정의서 양식 다운로드 기능 추가",
-	"매핑정의서 업로드시 체크로직 추가",
-	"사업자등록번호 입력란 추가",
-	"ZIP 제출 시 매핑정의서 네이밍 규칙 변경"
+    "매핑정의서 안내문구 추가"
   ]
 }
