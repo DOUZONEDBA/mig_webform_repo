@@ -537,64 +537,102 @@
                     <span class="label-desc">항목을 체크하면 매핑 정보가 담긴 파일을 필수로 첨부해야 합니다.</span>
                     
                     <div class="mapping-grid">
+                        <!-- 회계기수 (iCUBE만 표시) -->
                         <div class="mapping-row" id="mapAccFyContainer" style="display:none;">
-                            <label class="checkbox-item"><input type="checkbox" name="codeMapping" value="회계기수" onchange="toggleMappingFile(this, 'file-accfy', 'badge-accfy')"> 회계기수</label>
+                            <div class="mapping-label-group">
+                                <label class="checkbox-item"><input type="checkbox" name="codeMapping" value="회계기수" onchange="toggleMappingFile(this, 'file-accfy', 'badge-accfy')"> 회계기수</label>
+                                <button type="button" id="btn-dl-accfy_code_map" class="btn-dl-template" onclick="downloadMappingTemplate('accfy_code_map')" title="회계기수 매핑 양식 다운로드"><i class="fa-solid fa-download"></i> 양식 다운로드</button>
+                            </div>
                             <div id="wrap-file-accfy" class="mapping-file-wrap">
-                                <input type="file" id="file-accfy" name="mappingFile_vendor" class="mapping-file" title="회계기수 매핑 파일 첨부" onchange="displaySingleMappingFile(this, 'badge-accfy')">
+                                <input type="file" id="file-accfy" name="mappingFile_accfy" class="mapping-file" title="회계기수 매핑 파일 첨부" onchange="checkAndAttachMappingFile(this, 'badge-accfy', 'accfy_code_map')">
                                 <div id="badge-accfy" style="display: none;"></div>
                             </div>
                         </div>
+                        <!-- 거래처 -->
                         <div class="mapping-row">
                             <div class="mapping-label-group">
                                 <label class="checkbox-item"><input type="checkbox" name="codeMapping" value="거래처" onchange="toggleMappingFile(this, 'file-vendor', 'badge-vendor')"> 거래처</label>
-                                <button type="button" id="btn-dl-vendor_code_map" class="btn-dl-template" onclick="downloadMappingTemplate('vendor_code_map')" title="거래처 코드 매핑 양식 다운로드">
-                                    <i class="fa-solid fa-download"></i> 양식 다운로드
-                                </button>
+                                <button type="button" id="btn-dl-vendor_code_map" class="btn-dl-template" onclick="downloadMappingTemplate('vendor_code_map')" title="거래처 매핑 양식 다운로드"><i class="fa-solid fa-download"></i> 양식 다운로드</button>
                             </div>
                             <div id="wrap-file-vendor" class="mapping-file-wrap">
                                 <input type="file" id="file-vendor" name="mappingFile_vendor" class="mapping-file" title="거래처 매핑 파일 첨부" onchange="checkAndAttachMappingFile(this, 'badge-vendor', 'vendor_code_map')">
                                 <div id="badge-vendor" style="display: none;"></div>
                             </div>
                         </div>
+                        <!-- 계정코드 -->
                         <div class="mapping-row">
-                            <label class="checkbox-item"><input type="checkbox" name="codeMapping" value="계정코드" onchange="toggleMappingFile(this, 'file-account', 'badge-account')"> 계정코드</label>
+                            <div class="mapping-label-group">
+                                <label class="checkbox-item"><input type="checkbox" name="codeMapping" value="계정코드" onchange="toggleMappingFile(this, 'file-account', 'badge-account')"> 계정코드</label>
+                                <button type="button" id="btn-dl-acct_code_map" class="btn-dl-template" onclick="downloadMappingTemplate('acct_code_map')" title="계정코드 매핑 양식 다운로드"><i class="fa-solid fa-download"></i> 양식 다운로드</button>
+                            </div>
                             <div id="wrap-file-account" class="mapping-file-wrap">
-                                <input type="file" id="file-account" name="mappingFile_account" class="mapping-file" title="계정코드 매핑 파일 첨부" onchange="displaySingleMappingFile(this, 'badge-account')">
+                                <input type="file" id="file-account" name="mappingFile_account" class="mapping-file" title="계정코드 매핑 파일 첨부" onchange="checkAndAttachMappingFile(this, 'badge-account', 'acct_code_map')">
                                 <div id="badge-account" style="display: none;"></div>
                             </div>
                         </div>
+                        <!-- 사원 -->
                         <div class="mapping-row">
-                            <label class="checkbox-item"><input type="checkbox" name="codeMapping" value="사원" onchange="toggleMappingFile(this, 'file-emp', 'badge-emp')"> 사원</label>
+                            <div class="mapping-label-group">
+                                <label class="checkbox-item"><input type="checkbox" name="codeMapping" value="사원" onchange="toggleMappingFile(this, 'file-emp', 'badge-emp')"> 사원</label>
+                                <button type="button" id="btn-dl-emp_code_map" class="btn-dl-template" onclick="downloadMappingTemplate('emp_code_map')" title="사원 매핑 양식 다운로드"><i class="fa-solid fa-download"></i> 양식 다운로드</button>
+                            </div>
                             <div id="wrap-file-emp" class="mapping-file-wrap">
-                                <input type="file" id="file-emp" name="mappingFile_emp" class="mapping-file" title="사원 매핑 파일 첨부" onchange="displaySingleMappingFile(this, 'badge-emp')">
+                                <input type="file" id="file-emp" name="mappingFile_emp" class="mapping-file" title="사원 매핑 파일 첨부" onchange="checkAndAttachMappingFile(this, 'badge-emp', 'emp_code_map')">
                                 <div id="badge-emp" style="display: none;"></div>
                             </div>
                         </div>
+                        <!-- 부서 -->
                         <div class="mapping-row">
-                            <label class="checkbox-item"><input type="checkbox" name="codeMapping" value="부서" onchange="toggleMappingFile(this, 'file-dept', 'badge-dept')"> 부서</label>
+                            <div class="mapping-label-group">
+                                <label class="checkbox-item"><input type="checkbox" name="codeMapping" value="부서" onchange="toggleMappingFile(this, 'file-dept', 'badge-dept')"> 부서</label>
+                                <button type="button" id="btn-dl-dept_code_map" class="btn-dl-template" onclick="downloadMappingTemplate('dept_code_map')" title="부서 매핑 양식 다운로드"><i class="fa-solid fa-download"></i> 양식 다운로드</button>
+                            </div>
                             <div id="wrap-file-dept" class="mapping-file-wrap">
-                                <input type="file" id="file-dept" name="mappingFile_dept" class="mapping-file" title="부서 매핑 파일 첨부" onchange="displaySingleMappingFile(this, 'badge-dept')">
+                                <input type="file" id="file-dept" name="mappingFile_dept" class="mapping-file" title="부서 매핑 파일 첨부" onchange="checkAndAttachMappingFile(this, 'badge-dept', 'dept_code_map')">
                                 <div id="badge-dept" style="display: none;"></div>
                             </div>
                         </div>
+                        <!-- 관리항목 (iU/iCUBE만 표시) -->
                         <div class="mapping-row" id="mapMgmtItemContainer" style="display:none;">
-                            <label class="checkbox-item"><input type="checkbox" name="codeMapping" value="관리항목" onchange="toggleMappingFile(this, 'file-mgmt', 'badge-mgmt')"> 관리항목</label>
+                            <div class="mapping-label-group">
+                                <label class="checkbox-item"><input type="checkbox" name="codeMapping" value="관리항목" onchange="toggleMappingFile(this, 'file-mgmt', 'badge-mgmt')"> 관리항목</label>
+                                <button type="button" id="btn-dl-mgmt_code_map" class="btn-dl-template" onclick="downloadMappingTemplate('mgmt_code_map')" title="관리항목 매핑 양식 다운로드"><i class="fa-solid fa-download"></i> 양식 다운로드</button>
+                            </div>
                             <div id="wrap-file-mgmt" class="mapping-file-wrap">
-                                <input type="file" id="file-mgmt" name="mappingFile_mgmt" class="mapping-file" title="관리항목 매핑 파일 첨부" onchange="displaySingleMappingFile(this, 'badge-mgmt')">
+                                <input type="file" id="file-mgmt" name="mappingFile_mgmt" class="mapping-file" title="관리항목 매핑 파일 첨부" onchange="checkAndAttachMappingFile(this, 'badge-mgmt', 'mgmt_code_map')">
                                 <div id="badge-mgmt" style="display: none;"></div>
                             </div>
                         </div>
+                        <!-- 근태 (iCUBE만 표시) -->
+                        <div class="mapping-row" id="mapOffCodeContainer" style="display:none;">
+                            <div class="mapping-label-group">
+                                <label class="checkbox-item"><input type="checkbox" name="codeMapping" value="근태" onchange="toggleMappingFile(this, 'file-off', 'badge-off')"> 근태</label>
+                                <button type="button" id="btn-dl-off_code_map" class="btn-dl-template" onclick="downloadMappingTemplate('off_code_map')" title="근태 매핑 양식 다운로드"><i class="fa-solid fa-download"></i> 양식 다운로드</button>
+                            </div>
+                            <div id="wrap-file-off" class="mapping-file-wrap">
+                                <input type="file" id="file-off" name="mappingFile_off" class="mapping-file" title="근태 매핑 파일 첨부" onchange="checkAndAttachMappingFile(this, 'badge-off', 'off_code_map')">
+                                <div id="badge-off" style="display: none;"></div>
+                            </div>
+                        </div>
+                        <!-- 계좌번호 -->
                         <div class="mapping-row" id="mapAccNumContainer">
-                            <label class="checkbox-item"><input type="checkbox" id="mapAccNum" name="codeMapping" value="계좌번호" onchange="toggleMappingFile(this, 'file-accnum', 'badge-accnum')"> 계좌번호</label>
+                            <div class="mapping-label-group">
+                                <label class="checkbox-item"><input type="checkbox" id="mapAccNum" name="codeMapping" value="계좌번호" onchange="toggleMappingFile(this, 'file-accnum', 'badge-accnum')"> 계좌번호</label>
+                                <button type="button" id="btn-dl-accnum_code_map" class="btn-dl-template" onclick="downloadMappingTemplate('accnum_code_map')" title="금융계좌 매핑 양식 다운로드"><i class="fa-solid fa-download"></i> 양식 다운로드</button>
+                            </div>
                             <div id="wrap-file-accnum" class="mapping-file-wrap">
-                                <input type="file" id="file-accnum" name="mappingFile_accnum" class="mapping-file" title="계좌번호 매핑 파일 첨부" onchange="displaySingleMappingFile(this, 'badge-accnum')">
+                                <input type="file" id="file-accnum" name="mappingFile_accnum" class="mapping-file" title="계좌번호 매핑 파일 첨부" onchange="checkAndAttachMappingFile(this, 'badge-accnum', 'accnum_code_map')">
                                 <div id="badge-accnum" style="display: none;"></div>
                             </div>
                         </div>
+                        <!-- 신용카드 -->
                         <div class="mapping-row" id="mapCreditCardContainer">
-                            <label class="checkbox-item"><input type="checkbox" id="mapCreditCard" name="codeMapping" value="신용카드" onchange="toggleMappingFile(this, 'file-card', 'badge-card')"> 신용카드</label>
+                            <div class="mapping-label-group">
+                                <label class="checkbox-item"><input type="checkbox" id="mapCreditCard" name="codeMapping" value="신용카드" onchange="toggleMappingFile(this, 'file-card', 'badge-card')"> 신용카드</label>
+                                <button type="button" id="btn-dl-card_code_map" class="btn-dl-template" onclick="downloadMappingTemplate('card_code_map')" title="신용카드 매핑 양식 다운로드"><i class="fa-solid fa-download"></i> 양식 다운로드</button>
+                            </div>
                             <div id="wrap-file-card" class="mapping-file-wrap">
-                                <input type="file" id="file-card" name="mappingFile_card" class="mapping-file" title="신용카드 매핑 파일 첨부" onchange="displaySingleMappingFile(this, 'badge-card')">
+                                <input type="file" id="file-card" name="mappingFile_card" class="mapping-file" title="신용카드 매핑 파일 첨부" onchange="checkAndAttachMappingFile(this, 'badge-card', 'card_code_map')">
                                 <div id="badge-card" style="display: none;"></div>
                             </div>
                         </div>
@@ -699,7 +737,7 @@
     </form>
     
     <div style="text-align: center; margin-top: 40px; margin-bottom: 20px; color: #9CA3AF; font-size: 12px; font-weight: 500; letter-spacing: 1px;">
-        DBACell OmniEsol Migration Request Form v.20260513
+        DBACell OmniEsol Migration Request Form v.20260513141043
     </div>
 </div>
 
@@ -1245,7 +1283,7 @@ const ICUBE_SCOPE_DATA = [
     }
 
     /* ── 버전 상수 ── */
-    const CURRENT_VERSION   = '20260513100200';
+    const CURRENT_VERSION   = '20260513141043';
     /* GitHub API 사용 — CDN 캐시 완전 우회, 항상 최신 파일 반환 */
     const VERSION_CHECK_URL = 'https://api.github.com/repos/DOUZONEDBA/mig_webform_repo/contents/version.json';
 
@@ -1325,6 +1363,9 @@ const ICUBE_SCOPE_DATA = [
             })
             .catch(function(err) { console.error('[VersionCheck] 오류:', err); });
     }
+
+    /* 우클릭 컨텍스트 메뉴 비활성화 */
+    document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
 
     /* 초기 세팅 및 저장된 HTML 버그 수정(data-saved 속성 체크) */
     window.onload = function() {
@@ -2119,6 +2160,19 @@ const ICUBE_SCOPE_DATA = [
             }
         }
 
+        /* 근태 행 — iCUBE 선택 시에만 표시 */
+        const mapOffCodeContainer = document.getElementById('mapOffCodeContainer');
+        const mapOffChk = mapOffCodeContainer ? mapOffCodeContainer.querySelector('input[type="checkbox"]') : null;
+        if (product === 'iCUBE') {
+            mapOffCodeContainer.style.display = 'flex';
+        } else {
+            mapOffCodeContainer.style.display = 'none';
+            if (mapOffChk) {
+                mapOffChk.checked = false;
+                toggleMappingFile(mapOffChk, 'file-off', 'badge-off');
+            }
+        }
+
         asisDbNameList.forEach(input => {
             if (product === 'iU') input.placeholder = "DB명을 입력하세요(NEOE)";
             else if (product === 'iCUBE') input.placeholder = "DB명을 입력하세요(DZICUBE)";
@@ -2275,17 +2329,18 @@ const ICUBE_SCOPE_DATA = [
                         if (!b1Val || b1Val !== fileInfo.form_key) {
                             alert('올바른 양식 파일이 아닙니다.\n\n'
                                 + '· 기대 양식: ' + (fileInfo.form_key || '-') + '\n'
-                                + '· 첨부 파일: ' + (b1Val || '구분자 없음') + '\n\n'
-                                + '올바른 양식을 다운로드 후 다시 첨부해 주세요.');
+                                + '· 최종배포일: ' + (fileInfo.version || '-') + '\n\n'
+                                + '양식 다운로드 기능을 통해 최신양식을 다운로드 받아 사용해주세요.');
                             input.value = '';
                             return;
                         }
 
                         /* ② 버전 체크 */
                         if (!c1Val || c1Val < fileInfo.version) {
-                            alert('구버전 양식입니다. 최신 양식을 다운로드 후 첨부해 주세요.\n\n'
-                                + '· 첨부 버전: ' + (c1Val || '버전 정보 없음') + '\n'
-                                + '· 최신 버전: ' + fileInfo.version);
+                            alert('올바른 양식 파일이 아닙니다.\n\n'
+                                + '· 기대 양식: ' + (fileInfo.form_key || '-') + '\n'
+                                + '· 최종배포일: ' + (fileInfo.version || '-') + '\n\n'
+                                + '양식 다운로드 기능을 통해 최신양식을 다운로드 받아 사용해주세요.');
                             input.value = '';
                             return;
                         }
@@ -2521,6 +2576,7 @@ const ICUBE_SCOPE_DATA = [
             'file-emp':    '사원',
             'file-dept':   '부서',
             'file-mgmt':   '관리항목',
+            'file-off':    '근태',
             'file-accnum': '계좌번호',
             'file-card':   '신용카드'
         };
