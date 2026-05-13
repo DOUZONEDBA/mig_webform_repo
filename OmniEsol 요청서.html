@@ -7,6 +7,7 @@
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     
     <style>
         :root {
@@ -551,7 +552,7 @@
                                 </button>
                             </div>
                             <div id="wrap-file-vendor" class="mapping-file-wrap">
-                                <input type="file" id="file-vendor" name="mappingFile_vendor" class="mapping-file" title="거래처 매핑 파일 첨부" onchange="displaySingleMappingFile(this, 'badge-vendor')">
+                                <input type="file" id="file-vendor" name="mappingFile_vendor" class="mapping-file" title="거래처 매핑 파일 첨부" onchange="checkAndAttachMappingFile(this, 'badge-vendor', 'vendor_code_map')">
                                 <div id="badge-vendor" style="display: none;"></div>
                             </div>
                         </div>
@@ -2217,29 +2218,103 @@ const ICUBE_SCOPE_DATA = [
         }
     }
 
-    /* ── 코드 매핑 양식 GitHub 다운로드 ── */
+    /* ── 코드 매핑 버전 JSON 캐시 ── */
+    var _cmVersionCache = null;
     var CODE_MAPPING_VERSION_API = 'https://api.github.com/repos/DOUZONEDBA/mig_webform_repo/contents/code_mapping/code_mapping_version.json';
 
-    function downloadMappingTemplate(key) {
-        var btnId = 'btn-dl-' + key;
-        var btn = document.getElementById(btnId);
-        if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 다운로드 중...'; }
-
-        fetch(CODE_MAPPING_VERSION_API, { cache: 'no-store' })
+    /* 버전 JSON fetch (캐시 활용) */
+    function fetchCmVersion() {
+        if (_cmVersionCache) return Promise.resolve(_cmVersionCache);
+        return fetch(CODE_MAPPING_VERSION_API, { cache: 'no-store' })
             .then(function(r) {
                 if (!r.ok) throw new Error('버전 정보를 불러올 수 없습니다. (HTTP ' + r.status + ')');
                 return r.json();
             })
             .then(function(res) {
                 if (!res.content) throw new Error('버전 파일 내용을 읽을 수 없습니다.');
-                /* atob()는 Latin-1 바이너리로 디코딩 → UTF-8 한글 깨짐
-                   TextDecoder로 UTF-8 바이트를 올바른 유니코드 문자열로 변환 */
                 var b64   = res.content.replace(/\n/g, '');
                 var bin   = atob(b64);
                 var bytes = new Uint8Array(bin.length);
                 for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-                var jsonStr = new TextDecoder('utf-8').decode(bytes);
-                var json = JSON.parse(jsonStr);
+                _cmVersionCache = JSON.parse(new TextDecoder('utf-8').decode(bytes));
+                return _cmVersionCache;
+            });
+    }
+
+    /* ── 코드 매핑 파일 첨부 시 버전 체크 ── */
+    function checkAndAttachMappingFile(input, badgeId, versionKey) {
+        if (!input.files || input.files.length === 0) return;
+        var file = input.files[0];
+
+        /* SheetJS 로드 확인 */
+        if (typeof XLSX === 'undefined') {
+            alert('Excel 파싱 라이브러리가 로드되지 않았습니다.\n잠시 후 다시 시도해 주세요.');
+            input.value = '';
+            return;
+        }
+
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                var data     = new Uint8Array(e.target.result);
+                var workbook = XLSX.read(data, { type: 'array' });
+                var sheet    = workbook.Sheets[workbook.SheetNames[0]];
+
+                /* B1: 양식구분자 / C1: 버전 */
+                var b1Val = sheet['B1'] ? String(sheet['B1'].v).trim() : null;
+                var c1Val = sheet['C1'] ? String(sheet['C1'].v).trim() : null;
+
+                /* 업로드 검증은 항상 최신 JSON 사용 — 캐시 무효화 후 fetch */
+                _cmVersionCache = null;
+                fetchCmVersion()
+                    .then(function(json) {
+                        var fileInfo = json.files[versionKey];
+                        if (!fileInfo) throw new Error('버전 키 [' + versionKey + ']를 찾을 수 없습니다.');
+
+                        /* ① 양식 구분자 체크 */
+                        if (!b1Val || b1Val !== fileInfo.form_key) {
+                            alert('올바른 양식 파일이 아닙니다.\n\n'
+                                + '· 기대 양식: ' + (fileInfo.form_key || '-') + '\n'
+                                + '· 첨부 파일: ' + (b1Val || '구분자 없음') + '\n\n'
+                                + '올바른 양식을 다운로드 후 다시 첨부해 주세요.');
+                            input.value = '';
+                            return;
+                        }
+
+                        /* ② 버전 체크 */
+                        if (!c1Val || c1Val < fileInfo.version) {
+                            alert('구버전 양식입니다. 최신 양식을 다운로드 후 첨부해 주세요.\n\n'
+                                + '· 첨부 버전: ' + (c1Val || '버전 정보 없음') + '\n'
+                                + '· 최신 버전: ' + fileInfo.version);
+                            input.value = '';
+                            return;
+                        }
+
+                        /* ③ 통과 → 기존 첨부 처리 */
+                        displaySingleMappingFile(input, badgeId);
+                    })
+                    .catch(function(err) {
+                        alert('버전 확인 중 오류가 발생했습니다.\n' + err.message);
+                        input.value = '';
+                    });
+
+            } catch (err) {
+                alert('파일을 읽을 수 없습니다.\nExcel(.xlsx) 형식인지 확인해 주세요.\n' + err.message);
+                input.value = '';
+            }
+        };
+        reader.readAsArrayBuffer(file);
+    }
+
+    /* ── 코드 매핑 양식 GitHub 다운로드 ── */
+
+    function downloadMappingTemplate(key) {
+        var btnId = 'btn-dl-' + key;
+        var btn = document.getElementById(btnId);
+        if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 다운로드 중...'; }
+
+        fetchCmVersion()
+            .then(function(json) {
                 var fileInfo = json.files[key];
                 if (!fileInfo) throw new Error('키 [' + key + '] 에 해당하는 파일 정보가 없습니다.');
                 var rawUrl = 'https://raw.githubusercontent.com/DOUZONEDBA/mig_webform_repo/main/code_mapping/'
