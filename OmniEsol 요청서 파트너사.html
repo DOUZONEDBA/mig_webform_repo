@@ -281,8 +281,8 @@
     <div class="tab-header">
         <div id="step1" class="tab-step active"><i class="fa-solid fa-pen-to-square"></i> 01. 기본 정보</div>
         <div id="step2" class="tab-step"><i class="fa-solid fa-database"></i> 02. DB 정보</div>
-        <div id="step3" class="tab-step"><i class="fa-solid fa-shield-halved"></i> 03. 보안 및 매핑</div>
-        <div id="step4" class="tab-step"><i class="fa-solid fa-table-list"></i> 04. 마이그레이션 범위</div>
+        <div id="step3" class="tab-step"><i class="fa-solid fa-table-list"></i> 03. 마이그레이션 범위</div>
+        <div id="step4" class="tab-step"><i class="fa-solid fa-shield-halved"></i> 04. 보안 및 매핑</div>
     </div>
 
     <form id="migrationForm">
@@ -517,12 +517,82 @@
 
             <div class="button-group">
                 <button type="button" class="btn-secondary" onclick="goToTab(1)"><i class="fa-solid fa-arrow-left"></i> 이전</button>
-                <button type="button" id="btnNextTab3" class="btn-primary" onclick="goToTab(3)">다음 (보안 및 매핑 설정) <i class="fa-solid fa-arrow-right"></i></button>
+                <button type="button" id="btnNextTab3" class="btn-primary" onclick="goToTab(3)">다음 (마이그레이션 범위) <i class="fa-solid fa-arrow-right"></i></button>
                 <button type="button" id="btnSubmitOther" class="btn-primary" onclick="submitForm()" style="display: none;"><i class="fa-solid fa-file-zipper"></i> 요청서 제출 (ZIP 생성)</button>
             </div>
         </div>
 
         <div id="tab3" class="tab-content">
+            <section>
+                <h2><i class="fa-solid fa-table-list"></i> 마이그레이션 범위</h2>
+                <div id="scopeNotice" class="scope-empty-msg">
+                    <i class="fa-solid fa-circle-info"></i>
+                    01. 기본 정보 탭에서 제품명을 선택하면 마이그레이션 범위 테이블이 표시됩니다.
+                </div>
+                <div id="scopeTableContainer"></div>
+            </section>
+
+            <section id="carryoverExtraSection" style="display:none;">
+                <h2><i class="fa-solid fa-circle-plus"></i> 추가정보 입력</h2>
+                <p class="label-desc" style="margin-bottom: 20px; display: block;">
+                    <i class="fa-solid fa-circle-info"></i>&nbsp; 해당 항목의 전표 정보(코드값)를 입력해 주세요.
+                </p>
+                <div id="carryoverInitGroup" style="display:none;">
+                    <p style="font-weight:700; font-size:14px; color:var(--text-main); margin:0 0 12px;"><i class="fa-solid fa-layer-group" style="color:var(--primary-color);"></i> 초기이월전표 정보</p>
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label>초기이월전표 작성부서 코드 <span style="color:red">*</span></label>
+                            <input type="text" name="carryoverDept" placeholder="">
+                        </div>
+                        <div class="form-group">
+                            <label>초기이월전표 작성자 코드 <span style="color:red">*</span></label>
+                            <input type="text" name="carryoverWriter" placeholder="">
+                        </div>
+                    </div>
+                    <div class="form-group" style="max-width: calc(50% - 10px);">
+                        <label>초기이월전표 승인자 코드 <span style="color:red">*</span></label>
+                        <input type="text" name="carryoverApprover" placeholder="">
+                    </div>
+                </div>
+                <div id="carryoverBanjeGroup" style="display:none; margin-top:20px; padding-top:20px; border-top:1px dashed var(--border-color);">
+                    <p style="font-weight:700; font-size:14px; color:var(--text-main); margin:0 0 12px;"><i class="fa-solid fa-layer-group" style="color:var(--primary-color);"></i> 반제잔액전표 정보</p>
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label>반제잔액전표 작성부서 코드 <span style="color:red">*</span></label>
+                            <input type="text" name="banjeDept" placeholder="">
+                        </div>
+                        <div class="form-group">
+                            <label>반제잔액전표 작성자 코드 <span style="color:red">*</span></label>
+                            <input type="text" name="banjeWriter" placeholder="">
+                        </div>
+                    </div>
+                    <div class="form-group" style="max-width: calc(50% - 10px);">
+                        <label>반제잔액전표 승인자 코드 <span style="color:red">*</span></label>
+                        <input type="text" name="banjeApprover" placeholder="">
+                    </div>
+                </div>
+                <div id="carryoverPastBanjeGroup" style="display:none; margin-top:20px; padding-top:20px; border-top:1px dashed var(--border-color);">
+                    <p style="font-weight:700; font-size:14px; color:var(--text-main); margin:0 0 12px;"><i class="fa-solid fa-layer-group" style="color:var(--primary-color);"></i> 과거반제전표 정보</p>
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label>과거반제전표 작성자 코드 <span style="color:red">*</span></label>
+                            <input type="text" name="pastBanjeWriter" placeholder="">
+                        </div>
+                        <div class="form-group">
+                            <label>과거반제전표 승인자 코드 <span style="color:red">*</span></label>
+                            <input type="text" name="pastBanjeApprover" placeholder="">
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="button-group">
+                <button type="button" class="btn-secondary" onclick="goToTab(2)"><i class="fa-solid fa-arrow-left"></i> 이전</button>
+                <button type="button" id="btnNextTab4" class="btn-primary" onclick="goToTab(4)">다음 (보안 및 매핑) <i class="fa-solid fa-arrow-right"></i></button>
+            </div>
+        </div>
+
+        <div id="tab4" class="tab-content">
             <section id="securitySection">
                 <h2><i class="fa-solid fa-shield-halved"></i> 보안 설정</h2>
                 <div class="form-group">
@@ -667,80 +737,6 @@
             </section>
 
             <div class="button-group">
-                <button type="button" class="btn-secondary" onclick="goToTab(2)"><i class="fa-solid fa-arrow-left"></i> 이전</button>
-                <button type="button" id="btnNextTab4" class="btn-primary" onclick="goToTab(4)">다음 (마이그레이션 범위) <i class="fa-solid fa-arrow-right"></i></button>
-                <button type="button" id="btnSubmitOtherTab3" class="btn-primary" onclick="submitForm()" style="display:none;"><i class="fa-solid fa-file-zipper"></i> 요청서 제출 (ZIP 생성)</button>
-            </div>
-        </div>
-
-        <div id="tab4" class="tab-content">
-            <section>
-                <h2><i class="fa-solid fa-table-list"></i> 마이그레이션 범위</h2>
-                <div id="scopeNotice" class="scope-empty-msg">
-                    <i class="fa-solid fa-circle-info"></i>
-                    01. 기본 정보 탭에서 제품명을 선택하면 마이그레이션 범위 테이블이 표시됩니다.
-                </div>
-                <div id="scopeTableContainer"></div>
-            </section>
-
-            <section id="carryoverExtraSection" style="display:none;">
-                <h2><i class="fa-solid fa-circle-plus"></i> 추가정보 입력</h2>
-                <p class="label-desc" style="margin-bottom: 20px; display: block;">
-                    <i class="fa-solid fa-circle-info"></i>&nbsp; 해당 항목의 전표 정보(코드값)를 입력해 주세요.
-                </p>
-
-                <div id="carryoverInitGroup" style="display:none;">
-                    <p style="font-weight:700; font-size:14px; color:var(--text-main); margin:0 0 12px;"><i class="fa-solid fa-layer-group" style="color:var(--primary-color);"></i> 초기이월전표 정보</p>
-                    <div class="grid-2">
-                        <div class="form-group">
-                            <label>초기이월전표 작성부서 코드 <span style="color:red">*</span></label>
-                            <input type="text" name="carryoverDept" placeholder="">
-                        </div>
-                        <div class="form-group">
-                            <label>초기이월전표 작성자 코드 <span style="color:red">*</span></label>
-                            <input type="text" name="carryoverWriter" placeholder="">
-                        </div>
-                    </div>
-                    <div class="form-group" style="max-width: calc(50% - 10px);">
-                        <label>초기이월전표 승인자 코드 <span style="color:red">*</span></label>
-                        <input type="text" name="carryoverApprover" placeholder="">
-                    </div>
-                </div>
-
-                <div id="carryoverBanjeGroup" style="display:none; margin-top:20px; padding-top:20px; border-top:1px dashed var(--border-color);">
-                    <p style="font-weight:700; font-size:14px; color:var(--text-main); margin:0 0 12px;"><i class="fa-solid fa-layer-group" style="color:var(--primary-color);"></i> 반제잔액전표 정보</p>
-                    <div class="grid-2">
-                        <div class="form-group">
-                            <label>반제잔액전표 작성부서 코드 <span style="color:red">*</span></label>
-                            <input type="text" name="banjeDept" placeholder="">
-                        </div>
-                        <div class="form-group">
-                            <label>반제잔액전표 작성자 코드 <span style="color:red">*</span></label>
-                            <input type="text" name="banjeWriter" placeholder="">
-                        </div>
-                    </div>
-                    <div class="form-group" style="max-width: calc(50% - 10px);">
-                        <label>반제잔액전표 승인자 코드 <span style="color:red">*</span></label>
-                        <input type="text" name="banjeApprover" placeholder="">
-                    </div>
-                </div>
-
-                <div id="carryoverPastBanjeGroup" style="display:none; margin-top:20px; padding-top:20px; border-top:1px dashed var(--border-color);">
-                    <p style="font-weight:700; font-size:14px; color:var(--text-main); margin:0 0 12px;"><i class="fa-solid fa-layer-group" style="color:var(--primary-color);"></i> 과거반제전표 정보 <span style="font-size:12px; font-weight:500; color:var(--text-muted);"></span></p>
-                    <div class="grid-2">
-                        <div class="form-group">
-                            <label>과거반제전표 작성자 코드 <span style="color:red">*</span></label>
-                            <input type="text" name="pastBanjeWriter" placeholder="">
-                        </div>
-                        <div class="form-group">
-                            <label>과거반제전표 승인자 코드 <span style="color:red">*</span></label>
-                            <input type="text" name="pastBanjeApprover" placeholder="">
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <div class="button-group">
                 <button type="button" class="btn-secondary" onclick="goToTab(3)"><i class="fa-solid fa-arrow-left"></i> 이전</button>
                 <button type="button" class="btn-primary" onclick="submitForm()"><i class="fa-solid fa-paper-plane"></i> 최종 제출하기 (ZIP 다운로드)</button>
             </div>
@@ -748,7 +744,7 @@
     </form>
     
     <div style="text-align: center; margin-top: 40px; margin-bottom: 20px; color: #9CA3AF; font-size: 12px; font-weight: 500; letter-spacing: 1px;">
-        DBACell OmniEsol Migration Request Form v.20260513180000
+        DBACell OmniEsol Migration Request Form v.20260514
     </div>
 </div>
 
@@ -1090,7 +1086,7 @@ const ICUBE_SCOPE_DATA = [
     }
 
     /* ── 버전 상수 ── */
-    const CURRENT_VERSION   = '20260513180000';
+    const CURRENT_VERSION   = '20260514100000';
     /* GitHub API 사용 — CDN 캐시 완전 우회, 항상 최신 파일 반환 */
     const VERSION_CHECK_URL = 'https://api.github.com/repos/DOUZONEDBA/mig_webform_repo/contents/version.json';
 
@@ -1937,23 +1933,19 @@ const ICUBE_SCOPE_DATA = [
             }
 
             if (product === '타시스템') {
-                /* 탭 03 활성화, 탭 04 비활성 + tab3 보안/매핑 숨기고 제출 버튼 전환 */
-                document.getElementById('step3').classList.remove('disabled');
-                document.getElementById('step4').classList.add('disabled');
-                document.getElementById('btnNextTab3').style.display = '';
-                document.getElementById('btnSubmitOther').style.display = 'none';
-                document.getElementById('securitySection').style.display = 'none';
-                document.getElementById('mappingSection').style.display = 'none';
-                document.getElementById('btnNextTab4').style.display = 'none';
-                document.getElementById('btnSubmitOtherTab3').style.display = 'flex';
-            } else {
-                /* 탭 03, 04 활성화 복원 + tab3 버튼/섹션 복원 */
+                /* 탭 03(마이그레이션범위), 04(보안/매핑) 모두 활성화 + 보안/매핑 섹션 숨김 */
                 document.getElementById('step3').classList.remove('disabled');
                 document.getElementById('step4').classList.remove('disabled');
                 document.getElementById('btnNextTab3').style.display = '';
                 document.getElementById('btnSubmitOther').style.display = 'none';
-                document.getElementById('btnNextTab4').style.display = '';
-                document.getElementById('btnSubmitOtherTab3').style.display = 'none';
+                document.getElementById('securitySection').style.display = 'none';
+                document.getElementById('mappingSection').style.display = 'none';
+            } else {
+                /* 탭 03, 04 활성화 복원 + 보안/매핑 섹션 복원 */
+                document.getElementById('step3').classList.remove('disabled');
+                document.getElementById('step4').classList.remove('disabled');
+                document.getElementById('btnNextTab3').style.display = '';
+                document.getElementById('btnSubmitOther').style.display = 'none';
             }
         }
 
