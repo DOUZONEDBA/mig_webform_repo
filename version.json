@@ -1,7 +1,8 @@
 {
-  "version": "20260514100000",
+  "version": "20260601000000",
   "download": "https://raw.githubusercontent.com/DOUZONEDBA/mig_webform_repo/main/OmniEsol%20%EC%9A%94%EC%B2%AD%EC%84%9C.html",
   "note": [
-    "매핑정의서 안내문구 추가"
+    "계정코드 암호화 체크 시 마이그레이션 대상 테이블 체크가 해제되던 버그 수정",
+	"사내 게시판에서 신규 양식 다운로드 부탁드립니다."
   ]
 }
