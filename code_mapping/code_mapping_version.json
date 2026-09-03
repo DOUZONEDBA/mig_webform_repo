@@ -1,14 +1,14 @@
 {
   "last_updated": "20260513111600",
   "files": {
-    "emp_code_map":   { "version": "20260513", "filename": "[공통] 1. 사원코드매핑정의서.xlsx",                        "form_key": "사원코드매핑정의서",     "updated": "20260513111600" },
-    "vendor_code_map":{ "version": "20260513", "filename": "[공통] 2. 거래처코드매핑정의서.xlsx",                       "form_key": "거래처코드매핑정의서",       "updated": "20260513111600" },
-    "dept_code_map":  { "version": "20260513", "filename": "[공통] 3. 부서코드매핑정의서.xlsx",                        "form_key": "부서코드매핑정의서",     "updated": "20260513111600" },
-    "acct_code_map":  { "version": "20260513", "filename": "[공통] 4. 계정코드매핑정의서.xlsx",                        "form_key": "계정코드매핑정의서",     "updated": "20260513111600" },
-    "mgmt_code_map":  { "version": "20260513", "filename": "[공통] 5. 관리항목매핑정의서.xlsx",                        "form_key": "관리항목매핑정의서",     "updated": "20260513111600" },
-    "accfy_code_map": { "version": "20260513", "filename": "[iCUBE] 6. 회계기수매핑정의서.xlsx",                      "form_key": "회계기수매핑정의서",     "updated": "20260513111600" },
-    "off_code_map":   { "version": "20260513", "filename": "[iCUBE] 7. 근태코드매핑정의서.xlsx",                      "form_key": "근태코드매핑정의서",     "updated": "20260513111600" },
-    "accnum_code_map":   { "version": "20260513", "filename": "[ERPiU] 8. 금융계좌매핑정의서.xlsx",                      "form_key": "금융계좌매핑정의서",     "updated": "20260513111600" },
-    "card_code_map":   { "version": "20260513", "filename": "[ERPiU] 9. 신용카드매핑정의서.xlsx",                      "form_key": "신용카드매핑정의서",     "updated": "20260513111600" }
+    "emp_code_map":   { "version": "20260903", "filename": "[공통] 1. 사원코드매핑정의서.xlsx",                        "form_key": "사원코드매핑정의서",     "updated": "20260903164600" },
+    "vendor_code_map":{ "version": "20260903", "filename": "[공통] 2. 거래처코드매핑정의서.xlsx",                       "form_key": "거래처코드매핑정의서",       "updated": "20260903164600" },
+    "dept_code_map":  { "version": "20260903", "filename": "[공통] 3. 부서코드매핑정의서.xlsx",                        "form_key": "부서코드매핑정의서",     "updated": "20260903164600" },
+    "acct_code_map":  { "version": "20260903", "filename": "[공통] 4. 계정코드매핑정의서.xlsx",                        "form_key": "계정코드매핑정의서",     "updated": "20260903164600" },
+    "mgmt_code_map":  { "version": "20260903", "filename": "[공통] 5. 관리항목매핑정의서.xlsx",                        "form_key": "관리항목매핑정의서",     "updated": "20260903164600" },
+    "accfy_code_map": { "version": "20260903", "filename": "[iCUBE] 6. 회계기수매핑정의서.xlsx",                      "form_key": "회계기수매핑정의서",     "updated": "20260903164600" },
+    "off_code_map":   { "version": "20260903", "filename": "[iCUBE] 7. 근태코드매핑정의서.xlsx",                      "form_key": "근태코드매핑정의서",     "updated": "20260903164600" },
+    "accnum_code_map":   { "version": "20260903", "filename": "[ERPiU] 8. 금융계좌매핑정의서.xlsx",                      "form_key": "금융계좌매핑정의서",     "updated": "20260903164600" },
+    "card_code_map":   { "version": "20260903", "filename": "[ERPiU] 9. 신용카드매핑정의서.xlsx",                      "form_key": "신용카드매핑정의서",     "updated": "20260903164600" }
   }
 }
